@@ -1,0 +1,122 @@
+[
+  {
+    "no": 1,
+    "kode_barang": "ASD/MSN/I/2019/PROD/01",
+    "nama_barang": "Planer",
+    "jumlah_item": "1 Unit",
+    "bulan_pembelian": "Maret",
+    "tahun_pembelian": "2019",
+    "lokasi": "ABHIJATI_PRODUKSI",
+    "keterangan": "dicek"
+  },
+  {
+    "no": 2,
+    "kode_barang": "ASD/MSN/I/2019/PROD/02",
+    "nama_barang": "Compresor Krisbow",
+    "jumlah_item": "1 Unit",
+    "bulan_pembelian": "Maret",
+    "tahun_pembelian": "2019",
+    "lokasi": "ABHIJATI_PRODUKSI",
+    "keterangan": "berfungsi"
+  },
+  {
+    "no": 3,
+    "kode_barang": "ASD/MSN/I/2019/PROD/03",
+    "nama_barang": "Compresor Moto Portable",
+    "jumlah_item": "1 Unit",
+    "bulan_pembelian": "Maret",
+    "tahun_pembelian": "2019",
+    "lokasi": "ABHIJATI_PRODUKSI",
+    "keterangan": "berfungsi"
+  },
+  {
+    "no": 4,
+    "kode_barang": "ASD/MSN/I/2019/PROD/04",
+    "nama_barang": "Mesin Bor Bobok",
+    "jumlah_item": "1 Unit",
+    "bulan_pembelian": "Maret",
+    "tahun_pembelian": "2019",
+    "lokasi": "ABHIJATI_PRODUKSI",
+    "keterangan": "berfungsi"
+  },
+  {
+    "no": 5,
+    "kode_barang": "ASD/MSN/I/2019/PROD/05",
+    "nama_barang": "Mesin Asah",
+    "jumlah_item": "1 Unit",
+    "bulan_pembelian": "Maret",
+    "tahun_pembelian": "2019",
+    "lokasi": "ABHIJATI_PRODUKSI",
+    "keterangan": "berfungsi"
+  },
+  {
+    "no": 6,
+    "kode_barang": "ASD/MSN/I/2019/PROD/06",
+    "nama_barang": "Mesin Genset",
+    "jumlah_item": "1 Unit",
+    "bulan_pembelian": "Maret",
+    "tahun_pembelian": "2019",
+    "lokasi": "ABHIJATI_PRODUKSI",
+    "keterangan": "dicek"
+  },
+  {
+    "no": 7,
+    "kode_barang": "ASD/MSN/I/2021/PROD/07",
+    "nama_barang": "Mesin Panel Saw",
+    "jumlah_item": "1 Unit",
+    "bulan_pembelian": "Januari",
+    "tahun_pembelian": "2021",
+    "lokasi": "ABHIJATI_PRODUKSI",
+    "keterangan": "berfungsi"
+  },
+  {
+    "no": 8,
+    "kode_barang": "ASD/MSN/I/2022/PROD/08",
+    "nama_barang": "Mesin Panel Saw",
+    "jumlah_item": "1 Unit",
+    "bulan_pembelian": "Juli",
+    "tahun_pembelian": "2022",
+    "lokasi": "ABHIJATI_PRODUKSI",
+    "keterangan": "berfungsi"
+  },
+  {
+    "no": 9,
+    "kode_barang": "ASD/MSN/I/2022/PROD/09",
+    "nama_barang": "Mesin Cold Press 60 Ton",
+    "jumlah_item": "1 Unit",
+    "bulan_pembelian": "Oktober",
+    "tahun_pembelian": "2022",
+    "lokasi": "ABHIJATI_PRODUKSI",
+    "keterangan": "berfungsi"
+  },
+  {
+    "no": 10,
+    "kode_barang": "AASD/MSN/I/2023/PROD/10",
+    "nama_barang": "Mesin Edge Banding",
+    "jumlah_item": "1 Unit",
+    "bulan_pembelian": "September",
+    "tahun_pembelian": "2023",
+    "lokasi": "ABHIJATI_PRODUKSI",
+    "keterangan": "berfungsi"
+  },
+  {
+    "no": 11,
+    "kode_barang": "ASD/MSN/I/2024/PROD/11",
+    "nama_barang": "CNC Router - Excitech",
+    "jumlah_item": "1 Unit",
+    "bulan_pembelian": "Juni",
+    "tahun_pembelian": "2024",
+    "lokasi": "ABHIJATI_PRODUKSI",
+    "keterangan": "berfungsi"
+  },
+  {
+    "no": 12,
+    "kode_barang": "ASD/MSN/I/2024/PROD/12",
+    "nama_barang": "Side Drilling",
+    "jumlah_item": "1 Unit",
+    "bulan_pembelian": "Juni",
+    "tahun_pembelian": "2024",
+    "lokasi": "ABHIJATI_PRODUKSI",
+    "keterangan": "berfungsi"
+  }
+]
