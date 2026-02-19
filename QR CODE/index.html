@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abhijati | Asset Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; }
+        .glass-card { 
+            background: rgba(30, 41, 59, 0.7); 
+            backdrop-filter: blur(10px); 
+            border: 1px solid rgba(255,255,255,0.1); 
+        }
+        .fade-in { animation: fadeIn 0.8s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="antialiased">
+    <div id="loader" class="flex items-center justify-center min-h-screen">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+    </div>
+
+    <div id="app" class="max-w-md mx-auto min-h-screen pb-10 hidden fade-in">
+        <div class="relative h-80 w-full overflow-hidden shadow-2xl">
+            <img id="foto" src="" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-transparent to-transparent"></div>
+            <div id="status-pill" class="absolute bottom-6 left-6 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-lg"></div>
+        </div>
+        
+        <div class="px-8 -mt-6 relative">
+            <h1 id="nama" class="text-3xl font-extrabold tracking-tight text-white mb-1"></h1>
+            <p id="kode" class="text-blue-400 font-mono text-xs tracking-[0.15em] uppercase font-semibold"></p>
+
+            <div class="grid grid-cols-2 gap-4 mt-10">
+                <div class="glass-card p-5 rounded-3xl">
+                    <span class="block text-[10px] text-slate-500 uppercase font-black tracking-widest mb-1">Location</span>
+                    <span id="lokasi" class="text-sm font-semibold text-slate-200"></span>
+                </div>
+                <div class="glass-card p-5 rounded-3xl">
+                    <span class="block text-[10px] text-slate-500 uppercase font-black tracking-widest mb-1">Acquisition</span>
+                    <span id="pembelian" class="text-sm font-semibold text-slate-200"></span>
+                </div>
+            </div>
+
+            <div class="mt-10 space-y-6">
+                <div class="flex justify-between items-end border-b border-slate-800/60 pb-4">
+                    <span class="text-xs font-bold uppercase tracking-widest text-slate-500">Inventory Qty</span>
+                    <span id="jumlah" class="text-sm font-bold text-blue-100"></span>
+                </div>
+                <div class="flex justify-between items-end border-b border-slate-800/60 pb-4">
+                    <span class="text-xs font-bold uppercase tracking-widest text-slate-500">System Status</span>
+                    <span id="keterangan" class="text-sm font-bold capitalize text-blue-100"></span>
+                </div>
+                <div class="flex justify-between items-end border-b border-slate-800/60 pb-4">
+                    <span class="text-xs font-bold uppercase tracking-widest text-slate-500">Division</span>
+                    <span class="text-sm font-bold text-blue-400">Production</span>
+                </div>
+            </div>
+
+            <a id="wa-link" href="#" class="block w-full mt-12 bg-blue-600 hover:bg-blue-500 text-white font-black py-5 rounded-2xl transition-all shadow-xl shadow-blue-900/30 text-center text-xs uppercase tracking-widest">
+                Request Maintenance
+            </a>
+        </div>
+
+        <footer class="mt-24 text-center">
+            <p class="text-[9px] text-slate-600 font-black tracking-[0.4em] uppercase mb-1">Asset Identity System</p>
+            <p class="text-[10px] text-slate-400 font-bold uppercase">ABHIJATI FURNITURE</p>
+        </footer>
+    </div>
+
+    <script>
+        // 1. Get Asset ID from URL (e.g., ?id=1)
+        const params = new URLSearchParams(window.location.search);
+        const assetId = params.get('id');
+
+        // 2. Fetch Data from your JSON file
+        fetch('data_inven_mesin.json')
+            .then(res => res.json())
+            .then(data => {
+                const asset = data.find(m => m.no == assetId);
+                
+                if (asset) {
+                    // Fill text data
+                    document.getElementById('nama').innerText = asset.nama_barang;
+                    document.getElementById('kode').innerText = asset.kode_barang;
+                    document.getElementById('lokasi').innerText = asset.lokasi.replace('_', ' ');
+                    document.getElementById('pembelian').innerText = `${asset.bulan_pembelian} ${asset.tahun_pembelian}`;
+                    document.getElementById('jumlah').innerText = asset.jumlah_item;
+                    document.getElementById('keterangan').innerText = asset.keterangan;
+                    
+                    // Handle Image with Placeholder if not found
+                    const assetImg = document.getElementById('foto');
+                    assetImg.src = `img/${asset.no}.jpg`;
+                    assetImg.onerror = function() {
+                        this.src = 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=1000&auto=format&fit=crop'; // Modern Industrial Placeholder
+                    };
+
+                    // Status Pill Color Logic
+                    const pill = document.getElementById('status-pill');
+                    pill.innerText = asset.keterangan;
+                    if(asset.keterangan.toLowerCase() === 'berfungsi') {
+                        pill.classList.add('bg-emerald-500', 'text-emerald-950');
+                    } else {
+                        pill.classList.add('bg-amber-500', 'text-amber-950');
+                    }
+
+                    // Maintenance WhatsApp Link (Optional Gimmick)
+                    const waMessage = `Reporting Maintenance for Asset: ${asset.nama_barang} (${asset.kode_barang})`;
+                    document.getElementById('wa-link').href = `https://wa.me/628123456789?text=${encodeURIComponent(waMessage)}`;
+
+                    // Show App, Hide Loader
+                    document.getElementById('loader').classList.add('hidden');
+                    document.getElementById('app').classList.remove('hidden');
+                } else {
+                    document.body.innerHTML = "<div class='flex items-center justify-center min-h-screen'><p class='text-slate-500 font-bold tracking-widest uppercase'>Asset Not Found</p></div>";
+                }
+            })
+            .catch(err => {
+                console.error("Error loading data:", err);
+                document.body.innerHTML = "<div class='p-10 text-center text-red-400'>Error loading database.</div>";
+            });
+    </script>
+</body>
+</html>
