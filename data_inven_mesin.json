@@ -118,5 +118,55 @@
     "tahun_pembelian": "2024",
     "lokasi": "ABHIJATI_PRODUKSI",
     "keterangan": "Berfungsi"
+  },
+  {
+    "no": 13,
+    "kode_barang": "ASD/MSN/I/2024/PROD/13",
+    "nama_barang": "Air Tank - Baode",
+    "jumlah_item": "1 Unit",
+    "bulan_pembelian": "Juni",
+    "tahun_pembelian": "2024",
+    "lokasi": "ABHIJATI_PRODUKSI",
+    "keterangan": "Berfungsi"
+  },
+  {
+    "no": 14,
+    "kode_barang": "ASD/MSN/I/2024/PROD/14",
+    "nama_barang": "Freeze Dryer EK 1228C + High Precision Filter C60",
+    "jumlah_item": "1 Unit",
+    "bulan_pembelian": "Juni",
+    "tahun_pembelian": "2024",
+    "lokasi": "ABHIJATI_PRODUKSI",
+    "keterangan": "Berfungsi"
+  },
+  {
+    "no": 15,
+    "kode_barang": "ASD/MSN/I/2024/PROD/15",
+    "nama_barang": "Vacum Pump For Cnc Router - Excitech",
+    "jumlah_item": "1 Unit",
+    "bulan_pembelian": "Juni",
+    "tahun_pembelian": "2024",
+    "lokasi": "ABHIJATI_PRODUKSI",
+    "keterangan": "Berfungsi"
+  },
+  {
+    "no": 16,
+    "kode_barang": "ASD/MSN/I/2024/PROD/16",
+    "nama_barang": "Compresor",
+    "jumlah_item": "1 Unit",
+    "bulan_pembelian": "Juni",
+    "tahun_pembelian": "2024",
+    "lokasi": "ABHIJATI_PRODUKSI",
+    "keterangan": "Berfungsi"
+  },
+  {
+    "no": 17,
+    "kode_barang": "ASD/MSN/I/2024/PROD/17",
+    "nama_barang": "Stabillizer",
+    "jumlah_item": "1 Unit",
+    "bulan_pembelian": "Juli",
+    "tahun_pembelian": "2024",
+    "lokasi": "ABHIJATI_PRODUKSI",
+    "keterangan": "Berfungsi"
   }
 ]
