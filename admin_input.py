@@ -32,8 +32,10 @@ st.write("Database: Abhijati Inventory System (Connected ✅)")
 
 # Map singkatan untuk saran kode
 prefix_map = {
+    "tanah":"TNH",
+    "Bangunan":"BGN",
     "Mesin Produksi": "MSN",
-    "Transportasi": "TRSPR",
+    "Kendaraan": "TRN",
     "Elektronik": "ELK",
     "Furniture": "FURN",
     "Alat Kantor": "OFC"
@@ -121,3 +123,4 @@ if submitted:
                     st.error(f"Gagal kirim ke Sheets. Kode Error: {response.status_code}")
             except Exception as e:
                 st.error(f"Terjadi kesalahan koneksi: {e}")
+
