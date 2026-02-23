@@ -5,7 +5,7 @@ import base64
 from io import BytesIO
 
 # =========================================================
-# 1. LINK JEMBATAN ASLI MILIKMU (SUDAH DIUPDATE!)
+# 1. LINK JEMBATAN ASLI MILIKMU
 # =========================================================
 WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyryX8kH8Fjtq5bK_BPPWn6b1fU0CLBjiNqymaFCl7hWaRgRE0UVPwSfam8BLlBmiIcxw/exec"
 
@@ -30,12 +30,12 @@ st.markdown("""
 st.title("A.I.S ADMIN LIVE SYSTEM")
 st.write("Database: Abhijati Inventory System (Connected ✅)")
 
-# Map singkatan untuk saran kode
+# Map singkatan untuk saran kode (Sudah ditambah Tanah, Bangunan & Rename Kendaraan)
 prefix_map = {
-    "tanah":"TNH",
-    "Bangunan":"BGN",
+    "Tanah": "TNH",
+    "Bangunan": "BGN",
     "Mesin Produksi": "MSN",
-    "Kendaraan": "TRN",
+    "Kendaraan": "KDR", 
     "Elektronik": "ELK",
     "Furniture": "FURN",
     "Alat Kantor": "OFC"
@@ -97,15 +97,19 @@ if submitted:
             }
             
             try:
-                # Tembak ke Apps Script
                 response = requests.post(WEB_APP_URL, json=payload)
                 
                 if response.status_code == 200:
-                    st.success(f"✅ SUKSES! Aset {nama} sudah masuk ke Database")
+                    st.success(f"✅ SUKSES! Aset {nama} sudah masuk ke Database.")
                     
-                    # 3. Generate QR (Link ke Vercel)
+                    # 3. Generate QR (Link ke Vercel menggunakan KODE)
                     link_target = f"https://abhijati-reaperbytees-projects.vercel.app/?id={kode_barang}"
                     qr = qrcode.make(link_target)
+                    
+                    # Simpan ke buffer untuk fitur download
+                    buf = BytesIO()
+                    qr.save(buf, format="PNG")
+                    qr_bytes = buf.getvalue()
                     
                     # Tampilkan hasil di UI
                     st.divider()
@@ -116,14 +120,17 @@ if submitted:
                         else:
                             st.info("Data terkirim tanpa foto.")
                     with res_col2:
-                        buf = BytesIO()
-                        qr.save(buf, format="PNG")
-                        st.image(buf, caption=f"Scan ID: {no}", width=200)
+                        # Tampilkan QR
+                        st.image(qr_bytes, caption=f"ID Scan: {kode_barang}", width=200)
+                        
+                        # TOMBOL DOWNLOAD QR
+                        st.download_button(
+                            label="📥 DOWNLOAD QR CODE",
+                            data=qr_bytes,
+                            file_name=f"QR_{kode_barang.replace('/', '-')}.png",
+                            mime="image/png"
+                        )
                 else:
                     st.error(f"Gagal kirim ke Sheets. Kode Error: {response.status_code}")
             except Exception as e:
                 st.error(f"Terjadi kesalahan koneksi: {e}")
-
-
-
-
