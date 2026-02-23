@@ -14,7 +14,7 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-primary);
             margin: 0;
@@ -35,18 +35,17 @@
 
         .photo-container {
             width: 100%;
-            height: 250px;
+            height: 300px; /* Sedikit lebih tinggi agar foto mesin terlihat jelas */
             background-color: #334155;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             overflow: hidden;
+            border-bottom: 2px solid var(--accent-color); /* Garis bawah biru */
         }
 
         .photo-container img {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* Menjaga foto agar tidak gepeng */
+            object-fit: cover; /* ANTI MELAR */
+            object-position: center;
         }
 
         .content {
@@ -55,9 +54,10 @@
 
         h1 {
             margin: 0 0 8px 0;
-            font-size: 24px;
+            font-size: 22px;
             color: var(--accent-color);
             text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .status-badge {
@@ -66,9 +66,9 @@
             border-radius: 20px;
             background: rgba(56, 189, 248, 0.1);
             color: var(--accent-color);
-            font-size: 12px;
+            font-size: 11px;
             font-weight: bold;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             border: 1px solid var(--accent-color);
         }
 
@@ -83,14 +83,15 @@
         }
 
         .label {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-secondary);
             display: block;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
+            text-transform: uppercase;
         }
 
         .value {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 500;
         }
 
@@ -105,28 +106,28 @@
 
 <div class="container" id="main-content" style="display: none;">
     <div class="photo-container">
-        <img id="machine-photo" src="img/default.jpg" alt="Foto Mesin">
+        <img id="machine-photo" src="https://via.placeholder.com/500x300?text=Memuat+Foto..." alt="Foto Mesin">
     </div>
     
     <div class="content">
-        <div class="status-badge">ACTIVE ASSET</div>
+        <div class="status-badge">A.I.S OFFICIAL ASSET</div>
         <h1 id="machine-name">Memuat...</h1>
         
         <div class="info-grid">
             <div class="info-item">
-                <span class="label">KODE BARANG</span>
+                <span class="label">Kode Aset</span>
                 <span class="value" id="machine-code">-</span>
             </div>
             <div class="info-item">
-                <span class="label">LOKASI</span>
+                <span class="label">Lokasi</span>
                 <span class="value" id="machine-location">-</span>
             </div>
             <div class="info-item">
-                <span class="label">TANGGAL PEMBELIAN</span>
+                <span class="label">Waktu Perolehan</span>
                 <span class="value" id="machine-date">-</span>
             </div>
             <div class="info-item">
-                <span class="label">KETERANGAN</span>
+                <span class="label">Kondisi / Keterangan</span>
                 <span class="value" id="machine-desc">-</span>
             </div>
         </div>
@@ -134,12 +135,11 @@
 </div>
 
 <div id="error-screen" class="error-msg" style="display: none;">
-    <h2>Data Tidak Ditemukan</h2>
-    <p>Silakan scan QR Code yang valid pada mesin.</p>
+    <h2 style="color: var(--accent-color);">404</h2>
+    <p>Data tidak ditemukan atau ID salah.</p>
 </div>
 
 <script>
-    // Mengambil ID dari URL (?id=11)
     const urlParams = new URLSearchParams(window.location.search);
     const machineId = urlParams.get('id');
 
@@ -147,6 +147,7 @@
         fetch('data_inven_mesin.json')
             .then(response => response.json())
             .then(data => {
+                // Mencari data berdasarkan ID 'no'
                 const machine = data.find(m => m.no == machineId);
                 
                 if (machine) {
@@ -157,18 +158,20 @@
                     document.getElementById('machine-date').textContent = `${machine.bulan_pembelian} ${machine.tahun_pembelian}`;
                     document.getElementById('machine-desc').textContent = machine.keterangan;
 
-                    // Logika Gambar: Jika di JSON ada nama file, pakai itu. Jika tidak, pakai default.jpg
+                    // Update Gambar
+                    const imgElement = document.getElementById('machine-photo');
                     if (machine.gambar && machine.gambar !== "") {
-                        document.getElementById('machine-photo').src = `img/${machine.gambar}`;
+                        imgElement.src = `img/${machine.gambar}`;
                     } else {
-                        document.getElementById('machine-photo').src = `img/default.jpg`;
+                        // Jika tidak ada foto, tampilkan placeholder yang lebih rapi
+                        imgElement.src = `https://via.placeholder.com/500x300/1e293b/38bdf8?text=No+Photo+Available`;
                     }
                 } else {
                     document.getElementById('error-screen').style.display = 'block';
                 }
             })
             .catch(err => {
-                console.error("Gagal memuat data:", err);
+                console.error("Gagal load database:", err);
                 document.getElementById('error-screen').style.display = 'block';
             });
     } else {
