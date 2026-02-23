@@ -49,7 +49,7 @@ with st.form("main_form"):
         no = st.number_input("ID Unit (Nomor Urut)", min_value=1, value=1, step=1)
         nama = st.text_input("Nama Barang", placeholder="Misal: Forklift Toyota")
         kategori = st.selectbox("Kategori", list(prefix_map.keys()))
-        tahun = st.number_input("Tahun Pembelian", min_value=1900, max_value=2100, value=2024)
+        tahun = st.number_input("Tahun Pembelian", placeholder="Misal: ASD/XXX/XXXX/XXXX", min_value=1900, max_value=2100, value=2024)
         
     with col2:
         lokasi = st.text_input("Lokasi Penempatan", value="ABHIJATI_PRODUKSI")
@@ -134,3 +134,4 @@ if submitted:
                     st.error(f"Gagal kirim ke Sheets. Kode Error: {response.status_code}")
             except Exception as e:
                 st.error(f"Terjadi kesalahan koneksi: {e}")
+
