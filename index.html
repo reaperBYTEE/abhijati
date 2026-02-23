@@ -160,28 +160,20 @@
 </div>
 
 <script>
-    // LINK PUBLISH TO WEB ANDA
-    const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR5brEySXNZAel-ZXXi9psodyPHSBCXUFzSaNHxOK2Ym35FmhWkfw4tQNWVs99gC41rHsx6lbdeKddz/pub?gid=0&single=true&output=csv";
-
     async function fetchData() {
         const urlParams = new URLSearchParams(window.location.search);
         const machineId = urlParams.get('id');
-
-        if (!machineId) {
-            showError("ID tidak disertakan dalam URL.");
-            return;
-        }
 
         try {
             const response = await fetch(CSV_URL);
             const csvData = await response.text();
             
-            // Konversi CSV ke JSON sederhana
-            const rows = csvData.split('\n');
-            const headers = rows[0].split(',').map(h => h.trim().toLowerCase());
+            // Parsing CSV yang lebih aman untuk spasi dan urutan
+            const lines = csvData.split('\n').filter(line => line.trim() !== '');
+            const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
             
-            const records = rows.slice(1).map(row => {
-                const values = row.split(',');
+            const records = lines.slice(1).map(line => {
+                const values = line.split(',');
                 let obj = {};
                 headers.forEach((header, i) => {
                     obj[header] = values[i] ? values[i].trim() : "";
@@ -189,44 +181,30 @@
                 return obj;
             });
 
-            // Cari data berdasarkan ID (kolom 'no' di sheets)
             const machine = records.find(m => m.no == machineId);
 
             if (machine) {
                 document.getElementById('loading-screen').style.display = 'none';
                 document.getElementById('main-content').style.display = 'block';
                 
-                // Isi data ke HTML (Sesuaikan nama kolom di Google Sheets Anda)
-                document.getElementById('machine-name').textContent = machine.nama || "Tanpa Nama";
-                document.getElementById('machine-code').textContent = machine.kode || "-";
-                document.getElementById('machine-location').textContent = machine.lokasi || "-";
-                document.getElementById('machine-date').textContent = machine.bulan || "-";
-                document.getElementById('machine-status').textContent = machine.kondisi || "-";
+                // KUNCI PERBAIKAN: Pastikan nama di dalam ['...'] sama persis dengan header di Sheets (huruf kecil semua)
+                document.getElementById('machine-name').textContent = machine['nama'] || "TANPA NAMA";
+                document.getElementById('machine-code').textContent = machine['kode'] || "-";
+                document.getElementById('machine-location').textContent = machine['lokasi'] || "-";
+                document.getElementById('machine-date').textContent = machine['bulan'] || "-";
+                document.getElementById('machine-status').textContent = machine['kondisi'] || "-";
 
-                // Handle Foto dari link ImgBB
                 const imgElement = document.getElementById('machine-photo');
-                if (machine.gambar && machine.gambar.startsWith('http')) {
-                    imgElement.src = machine.gambar;
-                } else {
-                    imgElement.src = `https://via.placeholder.com/500x350/1e293b/38bdf8?text=Foto+Belum+Tersedia`;
-                }
+                imgElement.src = (machine['gambar'] && machine['gambar'].includes('http')) 
+                    ? machine['gambar'] 
+                    : "https://via.placeholder.com/500x350/1e293b/38bdf8?text=Foto+Belum+Tersedia";
             } else {
-                showError(`Data dengan ID ${machineId} belum terdaftar di sistem.`);
+                showError("ID " + machineId + " Belum Terdaftar");
             }
         } catch (err) {
-            console.error(err);
-            showError("Gagal mengambil data dari Google Sheets.");
+            showError("Gagal Sinkronisasi Sheets");
         }
     }
-
-    function showError(msg) {
-        document.getElementById('loading-screen').style.display = 'none';
-        document.getElementById('error-screen').style.display = 'block';
-        document.getElementById('error-text').textContent = msg;
-    }
-
-    // Jalankan fungsi
-    fetchData();
 </script>
 
 </body>
