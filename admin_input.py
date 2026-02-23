@@ -27,7 +27,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-st.title("🏢 AIS ADMIN - LIVE SYNC")
+st.title("A.I.S ADMIN LIVE SYSTEM")
 st.write("Database: Abhijati Inventory System (Connected ✅)")
 
 # Map singkatan untuk saran kode
@@ -123,5 +123,6 @@ if submitted:
                     st.error(f"Gagal kirim ke Sheets. Kode Error: {response.status_code}")
             except Exception as e:
                 st.error(f"Terjadi kesalahan koneksi: {e}")
+
 
 
