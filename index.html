@@ -167,7 +167,7 @@
             const rows = csvData.split('\n').map(row => row.split(','));
             
             // Cari baris yang kolom pertamanya (no) sama dengan ID
-            const item = rows.find(r => r[0].trim() == machineId);
+            const item = rows.find(r => r[2].trim() == targetId);
 
             if (item) {
                 document.getElementById('loading-screen').style.display = 'none';
