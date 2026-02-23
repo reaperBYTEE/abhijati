@@ -1,211 +1,59 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Abhijati Inventory System</title>
+    <title>AIS Scanner</title>
     <style>
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --accent-color: #38bdf8;
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 500px;
-            background: var(--card-bg);
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .photo-container {
-            width: 100%;
-            height: 350px;
-            background-color: #334155;
-            overflow: hidden;
-            border-bottom: 3px solid var(--accent-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .photo-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            object-position: center;
-        }
-
-        .content {
-            padding: 24px;
-        }
-
-        h1 {
-            margin: 0 0 8px 0;
-            font-size: 24px;
-            color: var(--accent-color);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            background: rgba(56, 189, 248, 0.1);
-            color: var(--accent-color);
-            font-size: 11px;
-            font-weight: bold;
-            margin-bottom: 15px;
-            border: 1px solid var(--accent-color);
-        }
-
-        .info-grid {
-            display: grid;
-            gap: 16px;
-        }
-
-        .info-item {
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            padding-bottom: 8px;
-        }
-
-        .label {
-            font-size: 11px;
-            color: var(--text-secondary);
-            display: block;
-            margin-bottom: 2px;
-            text-transform: uppercase;
-        }
-
-        .value {
-            font-size: 16px;
-            font-weight: 500;
-        }
-
-        .error-msg {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--text-secondary);
-        }
-
-        /* Animasi Loading */
-        .loader {
-            border: 4px solid #1e293b;
-            border-top: 4px solid var(--accent-color);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        body { background: #0f172a; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
+        .card { background: #1e293b; border-radius: 15px; padding: 20px; border-top: 5px solid #38bdf8; max-width: 400px; margin: auto; }
+        img { width: 100%; border-radius: 10px; margin-bottom: 15px; }
+        .label { color: #94a3b8; font-size: 12px; }
+        .value { font-size: 18px; margin-bottom: 10px; font-weight: bold; }
+        #loading { color: #38bdf8; margin-top: 50px; }
     </style>
 </head>
 <body>
-
-<div id="loading-screen" style="text-align: center; margin-top: 50px;">
-    <div class="loader"></div>
-    <p>Sinkronisasi Data AIS...</p>
-</div>
-
-<div class="container" id="main-content" style="display: none;">
-    <div class="photo-container">
-        <img id="machine-photo" src="" alt="Foto Mesin">
+    <div id="loading">Memuat Data AIS...</div>
+    <div id="app" class="card" style="display:none">
+        <img id="p-img" src="">
+        <div class="label">NAMA BARANG</div><div id="p-nama" class="value"></div>
+        <div class="label">KODE ASET</div><div id="p-kode" class="value"></div>
+        <div class="label">LOKASI</div><div id="p-lokasi" class="value"></div>
+        <div class="label">KONDISI</div><div id="p-kondisi" class="value"></div>
     </div>
-    
-    <div class="content">
-        <div class="status-badge">A.I.S OFFICIAL ASSET</div>
-        <h1 id="machine-name">-</h1>
+
+    <script>
+        const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR5brEySXNZAel-ZXXi9psodyPHSBCXUFzSaNHxOK2Ym35FmhWkfw4tQNWVs99gC41rHsx6lbdeKddz/pub?gid=0&single=true&output=csv";
         
-        <div class="info-grid">
-            <div class="info-item">
-                <span class="label">Kode Aset</span>
-                <span class="value" id="machine-code">-</span>
-            </div>
-            <div class="info-item">
-                <span class="label">Lokasi</span>
-                <span class="value" id="machine-location">-</span>
-            </div>
-            <div class="info-item">
-                <span class="label">Bulan Pembelian</span>
-                <span class="value" id="machine-date">-</span>
-            </div>
-            <div class="info-item">
-                <span class="label">Kondisi / Status</span>
-                <span class="value" id="machine-status">-</span>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="error-screen" class="error-msg" style="display: none;">
-    <h2 style="color: var(--accent-color);">404</h2>
-    <p id="error-text">Data tidak ditemukan.</p>
-</div>
-
-<script>
-    async function fetchData() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const machineId = urlParams.get('id');
-
-        try {
-            const response = await fetch(CSV_URL);
-            const csvData = await response.text();
-            
-            // Parsing CSV yang lebih aman untuk spasi dan urutan
-            const lines = csvData.split('\n').filter(line => line.trim() !== '');
-            const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-            
-            const records = lines.slice(1).map(line => {
-                const values = line.split(',');
-                let obj = {};
-                headers.forEach((header, i) => {
-                    obj[header] = values[i] ? values[i].trim() : "";
-                });
-                return obj;
-            });
-
-            const machine = records.find(m => m.no == machineId);
-
-            if (machine) {
-                document.getElementById('loading-screen').style.display = 'none';
-                document.getElementById('main-content').style.display = 'block';
+        async function load() {
+            const id = new URLSearchParams(window.location.search).get('id');
+            try {
+                const res = await fetch(CSV_URL);
+                const text = await res.text();
+                const rows = text.split('\n').map(r => r.split(','));
                 
-                // KUNCI PERBAIKAN: Pastikan nama di dalam ['...'] sama persis dengan header di Sheets (huruf kecil semua)
-                document.getElementById('machine-name').textContent = machine['nama'] || "TANPA NAMA";
-                document.getElementById('machine-code').textContent = machine['kode'] || "-";
-                document.getElementById('machine-location').textContent = machine['lokasi'] || "-";
-                document.getElementById('machine-date').textContent = machine['bulan'] || "-";
-                document.getElementById('machine-status').textContent = machine['kondisi'] || "-";
+                // Cari baris yang kolom pertamanya (no) sama dengan ID
+                const item = rows.find(r => r[0].trim() == id);
 
-                const imgElement = document.getElementById('machine-photo');
-                imgElement.src = (machine['gambar'] && machine['gambar'].includes('http')) 
-                    ? machine['gambar'] 
-                    : "https://via.placeholder.com/500x350/1e293b/38bdf8?text=Foto+Belum+Tersedia";
-            } else {
-                showError("ID " + machineId + " Belum Terdaftar");
+                if (item) {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('app').style.display = 'block';
+                    
+                    // Kita pakai urutan kolom (0=no, 1=kategori, 2=kode, 3=nama, dst sesuai Sheets kamu)
+                    document.getElementById('p-nama').innerText = item[3] || "---";
+                    document.getElementById('p-kode').innerText = item[2] || "---";
+                    document.getElementById('p-lokasi').innerText = item[7] || "---";
+                    document.getElementById('p-kondisi').innerText = item[8] || "---";
+                    document.getElementById('p-img').src = item[9] || "https://via.placeholder.com/400?text=No+Photo";
+                } else {
+                    document.getElementById('loading').innerText = "Data ID " + id + " Tidak Ditemukan";
+                }
+            } catch (e) {
+                document.getElementById('loading').innerText = "Gagal Sinkronisasi Sheets";
             }
-        } catch (err) {
-            showError("Gagal Sinkronisasi Sheets");
         }
-    }
-</script>
-
+        load();
+    </script>
 </body>
 </html>
