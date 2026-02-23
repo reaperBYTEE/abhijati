@@ -101,7 +101,7 @@ if submitted:
                 response = requests.post(WEB_APP_URL, json=payload)
                 
                 if response.status_code == 200:
-                    st.success(f"✅ SUKSES! Aset {nama} sudah masuk ke Google Sheets.")
+                    st.success(f"✅ SUKSES! Aset {nama} sudah masuk ke Database")
                     
                     # 3. Generate QR (Link ke Vercel)
                     link_target = f"https://abhijati-reaperbytees-projects.vercel.app/?id={kode_barang}"
@@ -123,6 +123,7 @@ if submitted:
                     st.error(f"Gagal kirim ke Sheets. Kode Error: {response.status_code}")
             except Exception as e:
                 st.error(f"Terjadi kesalahan koneksi: {e}")
+
 
 
 
