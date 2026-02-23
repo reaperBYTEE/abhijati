@@ -58,7 +58,7 @@ st.markdown("""
 
 # --- 2. DATABASE GOOGLE SHEETS & CONFIG ---
 # Link Publish to Web Anda (Jalur Cepat Baca)
-CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR5brEySXNZAel-ZXXi9psodyPHSBCXUFzSaNHxOK2Ym35FmhWkfw4tQNWVs99gC41rHsx6lbdeKddz/pubhtml?gid=0&single=true"
+CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR5brEySXNZAel-ZXXi9psodyPHSBCXUFzSaNHxOK2Ym35FmhWkfw4tQNWVs99gC41rHsx6lbdeKddz/pub?gid=0&single=true&output=csv"
 
 # API Key ImgBB (Silakan ganti dengan Key Anda sendiri nanti)
 IMGBB_API_KEY = "MASUKKAN_API_KEY_IMGBB_ANDA" 
@@ -165,3 +165,4 @@ if submitted:
                 )
             
             st.warning("⚠️ Langkah Terakhir: Besok pagi kita aktifkan fitur 'Auto-Write' ke Sheets agar Anda tidak perlu copy-paste manual lagi!")
+
