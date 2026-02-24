@@ -59,7 +59,7 @@ with st.form("main_form"):
         # Saran kode dinamis tapi tetap bisa diedit manual
         singkatan = prefix_map.get(kategori, "AST")
         saran_kode = f"ASD/{singkatan}/{tahun}/{no:02d}"
-        kode_barang = st.text_input("Kode Aset (Bebas Edit)", value=saran_kode)
+        kode_barang = st.text_input("Kode Aset", placeholder="Contoh: ASD/KDR/I/2019/1")
     
     uploaded_file = st.file_uploader("Upload Foto Barang", type=["jpg", "png", "jpeg"])
     submitted = st.form_submit_button("SIMPAN DATA & CETAK QR")
@@ -134,4 +134,5 @@ if submitted:
                     st.error(f"Gagal kirim ke Sheets. Kode Error: {response.status_code}")
             except Exception as e:
                 st.error(f"Terjadi kesalahan koneksi: {e}")
+
 
