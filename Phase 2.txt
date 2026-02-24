@@ -1,0 +1,52 @@
+====================================================================
+      AIS - ABHIJATI INVENTORY SYSTEM | STRATEGIC PLAN (FASE 2)
+====================================================================
+
+[1] FITUR ANTI-DUPLIKAT & SMART UPDATE
+--------------------------------------------------------------------
+- Deskripsi: Sistem akan melakukan pengecekan 'Kode Aset' sebelum 
+  menulis ke Google Sheets.
+- Logika: 
+  * Jika Kode ASET BELUM ADA: Tambah baris baru (seperti sekarang).
+  * Jika Kode ASET SUDAH ADA: Muncul notifikasi "Kode sudah terdaftar", 
+    dan sistem akan meng-update baris yang sudah ada tersebut.
+- Tujuan: Menghindari penumpukan data sampah di Google Sheets.
+
+[2] SISTEM PENOMORAN OTOMATIS (SMART SEQUENCE)
+--------------------------------------------------------------------
+- Deskripsi: Menghilangkan input manual untuk "ID Unit / Nomor Urut".
+- Logika: 
+  * Sistem memindai database Google Sheets secara real-time.
+  * Menghitung jumlah aset dalam kategori yang dipilih (misal: Kendaraan).
+  * Memberikan saran nomor urut berikutnya secara otomatis (n + 1).
+- Tujuan: Menghindari kesalahan manusia dalam urutan nomor aset.
+
+[3] SCAN-TO-EDIT (MOBILE FIELD UPDATE)
+--------------------------------------------------------------------
+- Deskripsi: Memungkinkan Admin melakukan update kondisi barang langsung 
+  dari lokasi (lapangan) hanya dengan scan QR.
+- Alur: 
+  * Scan QR -> Masuk ke halaman profil barang.
+  * Muncul tombol "Update Status" (khusus Admin).
+  * Ganti kondisi (misal: dari 'Berfungsi' ke 'Rusak') via HP.
+- Tujuan: Data kondisi aset selalu update tanpa perlu buka laptop.
+
+[4] DASHBOARD ANALITIK & REKAP (ATASAN VIEW)
+--------------------------------------------------------------------
+- Deskripsi: Halaman khusus untuk pimpinan melihat gambaran besar aset.
+- Fitur:
+  * Grafik total aset per kategori (Pie Chart).
+  * Statistik kondisi (Berapa % yang maintenance/rusak).
+  * Log aktivitas terbaru (Siapa input apa dan kapan).
+- Tujuan: Mempermudah pengambilan keputusan manajemen/audit.
+
+[5] SECURITY LAYER (SIMPLE LOGIN)
+--------------------------------------------------------------------
+- Deskripsi: Menambahkan proteksi password sederhana sebelum masuk 
+  ke aplikasi Streamlit.
+- Tujuan: Memastikan hanya Admin & Atasan yang bisa menambah atau 
+  mengubah data aset di cloud.
+
+====================================================================
+STATUS: PLANNED | NEXT ACTION: INTEGRASI ANTI-DUPLIKAT  | 
+====================================================================
