@@ -35,7 +35,7 @@
             max-width: 400px; 
             width: 90%;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); 
-            display: none; /* Muncul setelah data dapat */
+            display: none;
             text-align: left;
         }
 
@@ -85,12 +85,6 @@
             color: var(--accent-color); 
             font-weight: bold; 
             letter-spacing: 1px;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
         }
 
         .error-msg {
@@ -133,12 +127,12 @@
                 <div class="label">Kondisi</div>
                 <div id="p-kondisi" class="badge"></div>
             </div>
-            <div style="font-size: 10px; color: var(--text-secondary);" id="p-tahun"></div>
+            <div style="font-size: 11px; color: var(--text-secondary); font-weight: bold;" id="p-perolehan"></div>
         </div>
     </div>
 
     <script>
-        // --- PAKAI URL APPS SCRIPT BARU (REAL-TIME) ---
+        // --- KONFIGURASI API ---
         const SHEET_API = "https://script.google.com/macros/s/AKfycbyPXQM8-bKj0E3Nq8cPCT21SkgQQs0JxXJ3auyTSpdOm6Ajfd3fsrEh99XBC1lvO8uNUw/exec";
         
         async function loadData() {
@@ -151,7 +145,6 @@
             }
 
             try {
-                // Fetch langsung ke Apps Script
                 const response = await fetch(`${SHEET_API}?id=${encodeURIComponent(targetId)}`);
                 const item = await response.json();
 
@@ -164,19 +157,28 @@
                     document.getElementById('p-kode').innerText = item.kode || "---";
                     document.getElementById('p-lokasi').innerText = item.lokasi || "---";
                     document.getElementById('p-kondisi').innerText = item.kondisi || "---";
-                    document.getElementById('p-tahun').innerText = "Update: " + (item.bulan || "") + " " + (item.tahun || "");
                     
+                    // Tampilkan Bulan & Tahun
+                    const bulan = item.bulan || "";
+                    const tahun = item.tahun || "";
+                    document.getElementById('p-perolehan').innerText = (bulan || tahun) ? `${bulan} ${tahun}` : "";
+
                     // --- LOGIKA GAMBAR ---
                     const imgElement = document.getElementById('p-img');
-                    if (item.gambar && item.gambar.startsWith('http')) {
-                        imgElement.src = item.gambar;
+                    let imgUrlFromSheet = item.gambar ? item.gambar.trim() : "";
+
+                    // Jika di Sheets kosong, ambil default.jpg di folder img
+                    if (imgUrlFromSheet === "" || imgUrlFromSheet === "-" || imgUrlFromSheet === "None") {
+                        imgElement.src = "./img/default.jpg";
+                    } else if (imgUrlFromSheet.startsWith('http')) {
+                        imgElement.src = imgUrlFromSheet;
                     } else {
-                        imgElement.src = "https://via.placeholder.com/450x280/1e293b/38bdf8?text=FOTO+BELUM+ADA";
+                        imgElement.src = "./img/default.jpg";
                     }
 
-                    // Backup jika link mati
+                    // Backup jika link di sheets mati atau file default.jpg tidak ada
                     imgElement.onerror = function() {
-                        this.src = "https://via.placeholder.com/450x280/1e293b/38bdf8?text=FOTO+ERROR";
+                        this.src = "https://via.placeholder.com/450x280/1e293b/38bdf8?text=AIS+ABHIJATI";
                     };
 
                 } else {
