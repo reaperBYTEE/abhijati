@@ -35,7 +35,7 @@
             max-width: 400px; 
             width: 90%;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); 
-            display: none;
+            display: none; /* Muncul setelah data dapat */
             text-align: left;
         }
 
@@ -46,6 +46,7 @@
             overflow: hidden;
             margin-bottom: 20px;
             background: #334155;
+            border: 1px solid #475569;
         }
 
         img { 
@@ -84,6 +85,12 @@
             color: var(--accent-color); 
             font-weight: bold; 
             letter-spacing: 1px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
 
         .error-msg {
@@ -131,8 +138,8 @@
     </div>
 
     <script>
-        // URL CSV Google Sheets kamu
-        const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR5brEySXNZAel-ZXXi9psodyPHSBCXUFzSaNHxOK2Ym35FmhWkfw4tQNWVs99gC41rHsx6lbdeKddz/pub?gid=0&single=true&output=csv";
+        // --- PAKAI URL APPS SCRIPT BARU (REAL-TIME) ---
+        const SHEET_API = "https://script.google.com/macros/s/AKfycbyPXQM8-bKj0E3Nq8cPCT21SkgQQs0JxXJ3auyTSpdOm6Ajfd3fsrEh99XBC1lvO8uNUw/exec";
         
         async function loadData() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -144,46 +151,39 @@
             }
 
             try {
-                const response = await fetch(CSV_URL);
-                const csvText = await response.text();
-                // Split baris dan handle karakter spesial
-                const rows = csvText.split('\n').map(row => row.split(','));
-                
-                // Cari di Index 2 (Kolom Kode Aset)
-                const item = rows.find(r => r[2] && r[2].trim() === targetId.trim());
+                // Fetch langsung ke Apps Script
+                const response = await fetch(`${SHEET_API}?id=${encodeURIComponent(targetId)}`);
+                const item = await response.json();
 
-                if (item) {
+                if (item && !item.error) {
                     document.getElementById('loading').style.display = 'none';
                     document.getElementById('app').style.display = 'block';
                     
-                    document.getElementById('p-nama').innerText = item[3] || "---";
-                    document.getElementById('p-kategori').innerText = item[1] || "---";
-                    document.getElementById('p-kode').innerText = item[2] || "---";
-                    document.getElementById('p-lokasi').innerText = item[7] || "---";
-                    document.getElementById('p-kondisi').innerText = item[8] || "---";
-                    document.getElementById('p-tahun').innerText = "Tahun: " + (item[6] || "---");
+                    document.getElementById('p-nama').innerText = item.nama || "---";
+                    document.getElementById('p-kategori').innerText = item.kategori || "---";
+                    document.getElementById('p-kode').innerText = item.kode || "---";
+                    document.getElementById('p-lokasi').innerText = item.lokasi || "---";
+                    document.getElementById('p-kondisi').innerText = item.kondisi || "---";
+                    document.getElementById('p-tahun').innerText = "Update: " + (item.bulan || "") + " " + (item.tahun || "");
                     
                     // --- LOGIKA GAMBAR ---
-                    let imgUrlFromSheet = item[9] ? item[9].trim().replace(/(\r\n|\n|\r)/gm, "") : "";
                     const imgElement = document.getElementById('p-img');
-
-                    if (imgUrlFromSheet && imgUrlFromSheet.startsWith('http')) {
-                        imgElement.src = imgUrlFromSheet;
+                    if (item.gambar && item.gambar.startsWith('http')) {
+                        imgElement.src = item.gambar;
                     } else {
-                        // Jalur ke folder lokal kamu
-                        imgElement.src = "./img/default.jpg";
+                        imgElement.src = "https://via.placeholder.com/450x280/1e293b/38bdf8?text=FOTO+BELUM+ADA";
                     }
 
-                    // Backup jika link mati atau file lokal hilang
+                    // Backup jika link mati
                     imgElement.onerror = function() {
-                        this.src = "https://via.placeholder.com/450x280/1e293b/38bdf8?text=FOTO+TIDAK+ADA";
+                        this.src = "https://via.placeholder.com/450x280/1e293b/38bdf8?text=FOTO+ERROR";
                     };
 
                 } else {
                     document.getElementById('loading').innerHTML = `<div class="error-msg">❌ DATA TIDAK DITEMUKAN<br><small>${targetId}</small></div>`;
                 }
             } catch (error) {
-                document.getElementById('loading').innerText = "⚠️ GAGAL SYNC DATABASE";
+                document.getElementById('loading').innerText = "⚠️ GAGAL TERHUBUNG KE DATABASE";
             }
         }
 
