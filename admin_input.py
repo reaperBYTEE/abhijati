@@ -5,7 +5,7 @@ import base64
 from io import BytesIO
 
 # =========================================================
-# 1. LINK JEMBATAN ASLI MILIKMU
+# 1. LINK BRIDGE
 # =========================================================
 WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyryX8kH8Fjtq5bK_BPPWn6b1fU0CLBjiNqymaFCl7hWaRgRE0UVPwSfam8BLlBmiIcxw/exec"
 
@@ -13,7 +13,7 @@ IMGBB_API_KEY = "a1e87954926748a99225b52ce641c807"
 
 st.set_page_config(page_title="AIS ABHIJATI ADMIN", layout="centered")
 
-# Custom CSS biar tampilan makin sangar
+# Custom CSS 
 st.markdown("""
     <style>
     .stApp { background-color: #0f172a; color: white; }
