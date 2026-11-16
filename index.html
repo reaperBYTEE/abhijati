@@ -37,21 +37,69 @@
          VIEW 1: SPLIT EXECUTIVE LOGIN SCREEN
          ========================================== -->
     <div id="loginPage" class="login-split-screen">
+        <!-- Panel Kiri -->
         <div class="login-brand-panel">
-            <div class="brand-mark-row">
-                <div class="logo-box">
+            <!-- 1. AREA LOGO PROPORSIONAL -->
+            <div class="brand-mark-hero">
+                <div class="logo-box-hero">
                     <img src="logo.png" alt="Logo ASD" class="logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                     <div class="logo-fallback">A</div>
                 </div>
-                <div>
-                    <span class="org-tag">ABHIJATI SAHAR DHARMA</span>
-                    <h1 class="system-name">AIAS<span>.</span> <small>BETA</small></h1>
+                <div class="brand-hero-text">
+                    <span class="org-tag-hero">ABHIJATI SAHAR DHARMA</span>
+                    <h1 class="system-name-hero">AIAS<span>.</span> <small>BETA</small></h1>
+                    <span class="system-sub-hero">SMART ASSET INTELLIGENCE</span>
                 </div>
             </div>
 
+            <!-- Copy Utama -->
             <div class="hero-copy">
                 <h2>Asset Valuation &amp; Operational Intelligence.</h2>
                 <p>Sistem pemantauan nilai buku, analisis penyusutan aset tetap, dan pengelolaan inventaris produksi secara real-time.</p>
+            </div>
+
+            <!-- 2. LIVE TELEMETRY & ANIMATED DATA WIDGET -->
+            <div class="telemetry-showcase-box">
+                <div class="telemetry-top">
+                    <div class="tel-status">
+                        <span class="pulse-dot"></span>
+                        <span>LIVE ASSET TELEMETRY STREAM</span>
+                    </div>
+                    <div class="equalizer-bars" aria-hidden="true">
+                        <span></span><span></span><span></span><span></span><span></span>
+                    </div>
+                </div>
+
+                <!-- Mini Animated Metric Preview -->
+                <div class="telemetry-metrics-row" id="loginTelemetryStats">
+                    <div class="tel-metric">
+                        <small>ZONA AKTIF</small>
+                        <strong>WS &amp; PRODUKSI</strong>
+                    </div>
+                    <div class="tel-metric">
+                        <small>METODE VALUASI</small>
+                        <strong>STRAIGHT-LINE</strong>
+                    </div>
+                    <div class="tel-metric">
+                        <small>CLOUD SYNC</small>
+                        <strong class="text-mint">TERHUBUNG</strong>
+                    </div>
+                </div>
+
+                <!-- Smooth Running Ticker -->
+                <div class="ticker-viewport">
+                    <div class="ticker-track" id="loginTickerTrack">
+                        <span>● Valuasi Nilai Buku &amp; Depresiasi Bulanan Otomatis</span>
+                        <span>● Monitoring Zona ABHIJATI_WS &amp; ABHIJATI_PRODUKSI</span>
+                        <span>● Audit Stiker QR Terintegrasi Cloud Database</span>
+                        <span>● Laporan Eksekutif Real-Time Direksi &amp; Keuangan</span>
+                        <!-- Duplikat untuk seamless loop -->
+                        <span>● Valuasi Nilai Buku &amp; Depresiasi Bulanan Otomatis</span>
+                        <span>● Monitoring Zona ABHIJATI_WS &amp; ABHIJATI_PRODUKSI</span>
+                        <span>● Audit Stiker QR Terintegrasi Cloud Database</span>
+                        <span>● Laporan Eksekutif Real-Time Direksi &amp; Keuangan</span>
+                    </div>
+                </div>
             </div>
 
             <div class="login-feature-pills">
@@ -66,9 +114,20 @@
             </div>
         </div>
 
+        <!-- Panel Kanan -->
         <div class="login-form-panel">
             <div class="login-form-box">
-                <div class="form-head">
+                <!-- 3. AVATAR DI ATAS TULISAN LOGIN -->
+                <div class="login-avatar-wrap">
+                    <div class="login-avatar-circle">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="form-head centered">
                     <h3>LOGIN</h3>
                     <p>Otentikasi otomatis Guest atau Admin.</p>
                 </div>
@@ -93,6 +152,11 @@
 
                 <button id="btnLoginSubmit" onclick="doLogin()" class="btn btn-primary btn-lg">
                     <span id="btnLoginText">LOGIN</span>
+                </button>
+
+                <!-- 4. TOMBOL EXIT DI BAWAH LOGIN -->
+                <button type="button" onclick="exitApp()" class="btn btn-exit-app">
+                    EXIT
                 </button>
             </div>
         </div>
@@ -627,6 +691,26 @@
             setTimeout(() => { window.location.href = "about:blank"; }, 2500);
         }
 
+        function exitApp() {
+            try {
+                if (typeof require !== 'undefined') {
+                    const { ipcRenderer } = require('electron');
+                    ipcRenderer.send('close-app');
+                }
+            } catch (e) {}
+
+            window.close();
+            setTimeout(() => {
+                document.body.innerHTML = `
+                    <div class="blocked-screen">
+                        <div class="blocked-card">
+                            <h2 style="color:#34d399;">SESI DITUTUP</h2>
+                            <p style="margin-top:8px; color:#94a3b8;">Aplikasi AIAS Beta telah dihentikan.<br>Anda dapat menutup jendela ini.</p>
+                        </div>
+                    </div>`;
+            }, 150);
+        }
+
         async function doLogin() {
             const u = document.getElementById('user').value.trim();
             const p = document.getElementById('pass').value.trim();
@@ -661,7 +745,7 @@
             } catch (err) {
                 showToast("GAGAL MENGHUBUNGI SERVER", "error");
             } finally {
-                btnText.innerText = "MASUK WORKSPACE";
+                btnText.innerText = "LOGIN";
                 btn.disabled = false;
             }
         }
@@ -675,15 +759,15 @@
             const subtitle = document.getElementById('topbarSubtitle');
 
             if (role === 'admin') {
-                badge.innerText = 'Admin Operations';
+                badge.innerText = 'Admin Section';
                 badge.className = 'role-pill role-admin';
                 subtitle.innerText = 'Abhijati Sahar Dharma — Smart Assets System';
                 document.getElementById('guestView').classList.add('hidden');
                 document.getElementById('adminView').classList.remove('hidden');
             } else {
-                badge.innerText = 'Executive / Finance View';
+                badge.innerText = 'Data Finance View';
                 badge.className = 'role-pill role-exec';
-                subtitle.innerText = 'Abhijati Sahar Dharma — Executive Asset Report';
+                subtitle.innerText = 'Abhijati Sahar Dharma — Asset Report';
                 document.getElementById('adminView').classList.add('hidden');
                 document.getElementById('guestView').classList.remove('hidden');
                 
@@ -718,6 +802,39 @@
             const nilaiBuku = Math.max(0, hb - akumulasi);
             return { hb, sb, diffMonths, akumulasi, nilaiBuku };
         }
+
+        // Isi otomatis data ringkas di kotak telemetry Login dari cache lokal
+        (function initLoginTelemetry() {
+            try {
+                const cached = localStorage.getItem('ais_asd_backup');
+                if (cached) {
+                    const list = JSON.parse(cached);
+                    if (Array.isArray(list) && list.length > 0) {
+                        let totalBuku = 0;
+                        list.forEach(item => {
+                            totalBuku += hitungValuasiItem(item).nilaiBuku;
+                        });
+                        const statsRow = document.getElementById('loginTelemetryStats');
+                        if (statsRow) {
+                            statsRow.innerHTML = `
+                                <div class="tel-metric">
+                                    <small>TOTAL ASET</small>
+                                    <strong>${list.length} UNIT</strong>
+                                </div>
+                                <div class="tel-metric">
+                                    <small>ESTIMASI NILAI BUKU</small>
+                                    <strong class="text-mint">${formatCompactRupiah(totalBuku)}</strong>
+                                </div>
+                                <div class="tel-metric">
+                                    <small>STATUS DATABASE</small>
+                                    <strong>TERVERIFIKASI</strong>
+                                </div>
+                            `;
+                        }
+                    }
+                }
+            } catch (e) {}
+        })();
 
         function resolveDriveImageUrl(item) {
             let photoUrl = item.gambar || item.foto || item.image || item.url_foto || '';
@@ -835,7 +952,6 @@
                 totalAkumulasi += val.akumulasi;
                 totalUmurBulan += val.diffMonths;
 
-                // Hanya hitung beban penyusutan rutin untuk aset yang nilai bukunya masih > 0
                 if (val.nilaiBuku > 0) {
                     totalSusutBulananAktif += val.sb;
                 }
@@ -1035,7 +1151,7 @@
             // CHART 2: Line Area Chart Proyeksi Nilai Buku 3 Tahun ke Depan
             const ctxForecast = document.getElementById('depreciationForecastChart');
             const currentYear = new Date().getFullYear();
-            const projectionOffsets = [0, 6, 12, 24, 36]; // Bulan ke depan: Saat ini, +6 bln, +1 thn, +2 thn, +3 thn
+            const projectionOffsets = [0, 6, 12, 24, 36];
             const projectionLabels = ['Saat Ini', '+6 Bulan', `${currentYear + 1}`, `${currentYear + 2}`, `${currentYear + 3}`];
             const projectionValues = projectionOffsets.map(addMonths => {
                 let sumBook = 0;
