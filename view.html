@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Assets - KPSA</title>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --glass-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --accent: #38bdf8;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-image: radial-gradient(circle at 50% -20%, #1e293b, #0f172a);
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 25px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            display: none; 
+        }
+
+        .img-container {
+            width: 100%;
+            height: 260px;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 24px;
+            border: 1px solid var(--glass-border);
+            background: rgba(0,0,0,0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            cursor: pointer;
+        }
+
+        .data-row {
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .data-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .value {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .kode-highlight {
+            color: var(--accent);
+            font-family: monospace;
+            font-size: 20px;
+            text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        #loading-screen {
+            text-align: center;
+            color: var(--accent);
+            font-weight: bold;
+            letter-spacing: 2px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+
+        .error-text {
+            color: #ef4444;
+            text-align: center;
+            padding: 20px;
+            border: 1px dashed #ef4444;
+            border-radius: 12px;
+            background: rgba(239, 68, 68, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loading-screen">
+        MENGAMBIL DATA ASET...
+    </div>
+
+    <div id="app-content" class="glass-card">
+        <div class="img-container">
+            <img id="view-img" src="" alt="Foto Aset" onclick="if(this.dataset.viewUrl) window.open(this.dataset.viewUrl, '_blank')">
+        </div>
+        
+        <div class="data-row">
+            <div class="label">Kode Aset</div>
+            <div id="view-kode" class="value kode-highlight">-</div>
+        </div>
+
+        <div class="data-row">
+            <div class="label">Nama Barang</div>
+            <div id="view-nama" class="value">-</div>
+        </div>
+
+        <div class="data-row">
+            <div class="label">Kategori</div>
+            <div id="view-kategori" class="value">-</div>
+        </div>
+        
+        <div class="data-row">
+            <div class="label">Lokasi Penempatan</div>
+            <div id="view-lokasi" class="value">-</div>
+        </div>
+
+        <div class="data-row" style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <div class="label">Kondisi</div>
+                <div id="view-kondisi" class="status-badge">-</div>
+            </div>
+            <div style="text-align: right;">
+                <div class="label">Tahun Perolehan</div>
+                <div id="view-tahun" class="value" style="font-size: 15px;">-</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbzvhd0uo8xtbytXUOIQT57UFhvVuZ1XGyU3amwSmlV5PuLGMo8m59sTiqX9tQBm0QLr8A/exec"; 
+                        
+        async function fetchAssetData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const targetKode = urlParams.get('kode') || urlParams.get('id'); 
+
+            const loadingScreen = document.getElementById('loading-screen');
+            const appContent = document.getElementById('app-content');
+
+            if (!targetKode) {
+                loadingScreen.innerHTML = `<div class="error-text">❌ SCAN GAGAL<br><br>Kode aset tidak ditemukan di URL.</div>`;
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}?id=${encodeURIComponent(targetKode)}`);
+                const data = await response.json();
+
+                if (data && !data.error) {
+                    loadingScreen.style.display = 'none';
+                    appContent.style.display = 'block';
+                    
+                    document.getElementById('view-kode').innerText = data.kode_barang || data.kode || targetKode;
+                    document.getElementById('view-nama').innerText = data.nama_barang || data.nama || "-";
+                    document.getElementById('view-kategori').innerText = data.kategori || "-";
+                    document.getElementById('view-lokasi').innerText = data.lokasi || "-";
+                    document.getElementById('view-kondisi').innerText = data.kondisi || "-";
+                    
+                    const bln = data.bulan_pembelian || data.bulan || "";
+                    const thn = data.tahun_pembelian || data.tahun || "-";
+                    document.getElementById('view-tahun').innerText = bln ? `${bln} ${thn}` : thn;
+
+                    // AUTO DETECT & THUMBNAIL API GOOGLE DRIVE (ANTI-BLOKIR IPHONE)
+                    const imgElement = document.getElementById('view-img');
+                    let imgSource = data.url_foto || data.gambar || data.foto || data.image || "";
+                    
+                    if (!imgSource) {
+                        for (let key in data) {
+                            if (typeof data[key] === 'string' && data[key].includes('drive.google.com')) {
+                                imgSource = data[key];
+                                break;
+                            }
+                        }
+                    }
+
+                    if (imgSource && imgSource !== "-" && imgSource !== "None") {
+                        imgSource = imgSource.trim();
+                        let viewUrl = imgSource;
+                        
+                        if (imgSource.includes("drive.google.com")) {
+                            const fileId = imgSource.match(/[-\w]{25,}/);
+                            if (fileId && fileId[0]) {
+                                // JURUS PAMUNGKAS: Pakai Server LH3 Google (100% Tembus Safari iOS)
+                                imgSource = `https://lh3.googleusercontent.com/d/${fileId[0]}`;
+                                viewUrl = `https://drive.google.com/file/d/${fileId[0]}/view`;
+                            }
+                        }
+                        
+                        imgElement.src = imgSource;
+                        imgElement.dataset.viewUrl = viewUrl; 
+                    } else {
+                        imgElement.src = "https://via.placeholder.com/400x260/1e293b/38bdf8?text=NO+IMAGE";
+                        imgElement.onclick = null; 
+                    }
+
+                    imgElement.onerror = function() {
+                        this.src = "https://via.placeholder.com/400x260/ef4444/ffffff?text=IMAGE+BLOCKED";
+                        this.onclick = null;
+                    };
+
+                } else {
+                    loadingScreen.innerHTML = `<div class="error-text">❌ DATA TIDAK DITEMUKAN<br><br>Aset dengan kode <b>${targetKode}</b> tidak ada di database.</div>`;
+                }
+            } catch (error) {
+                loadingScreen.innerHTML = `<div class="error-text">⚠️ KONEKSI GAGAL<br><br>Tidak dapat terhubung ke database. Cek sinyal internet.</div>`;
+            }
+        }
+
+        window.onload = fetchAssetData;
+    </script>
+</body>
+</html>

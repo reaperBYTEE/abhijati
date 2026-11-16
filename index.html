@@ -3,193 +3,1640 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AIS - Official Asset Scan</title>
-    <style>
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --accent-color: #38bdf8;
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-        }
-
-        body { 
-            background: var(--bg-color); 
-            color: var(--text-primary); 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            text-align: center; 
-            padding: 20px; 
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-        }
-
-        .card { 
-            background: var(--card-bg); 
-            border-radius: 20px; 
-            padding: 24px; 
-            border-top: 6px solid var(--accent-color); 
-            max-width: 400px; 
-            width: 90%;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); 
-            display: none;
-            text-align: left;
-        }
-
-        .img-container {
-            width: 100%;
-            height: 250px;
-            border-radius: 12px;
-            overflow: hidden;
-            margin-bottom: 20px;
-            background: #334155;
-            border: 1px solid #475569;
-        }
-
-        img { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: cover; 
-        }
-
-        .info-group { margin-bottom: 15px; }
-        .label { 
-            color: var(--text-secondary); 
-            font-size: 10px; 
-            text-transform: uppercase; 
-            letter-spacing: 2px; 
-            margin-bottom: 2px; 
-        }
-        .value { 
-            font-size: 18px; 
-            font-weight: 600; 
-            color: var(--text-primary); 
-            line-height: 1.2;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: bold;
-            background: var(--accent-color);
-            color: #000;
-            margin-top: 5px;
-        }
-
-        #loading { 
-            color: var(--accent-color); 
-            font-weight: bold; 
-            letter-spacing: 1px;
-        }
-
-        .error-msg {
-            color: #f87171;
-            padding: 20px;
-        }
-    </style>
+    <title>AIAS Beta — Executive Asset Intelligence (ASD)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div id="loading">📡 MENCARI DATA ASET...</div>
-    
-    <div id="app" class="card">
-        <div class="img-container">
-            <img id="p-img" src="" alt="Foto Aset">
-        </div>
-        
-        <div class="info-group">
-            <div class="label">Nama Barang</div>
-            <div id="p-nama" class="value"></div>
-        </div>
-
-        <div class="info-group">
-            <div class="label">Kode Aset</div>
-            <div id="p-kode" class="value" style="color: var(--accent-color);"></div>
-        </div>
-
-        <div class="info-group">
-            <div class="label">Kategori</div>
-            <div id="p-kategori" class="value"></div>
-        </div>
-        
-        <div class="info-group">
-            <div class="label">Lokasi Penempatan</div>
-            <div id="p-lokasi" class="value"></div>
-        </div>
-
-        <div style="display: flex; justify-content: space-between; align-items: flex-end;">
-            <div class="info-group" style="margin-bottom: 0;">
-                <div class="label">Kondisi</div>
-                <div id="p-kondisi" class="badge"></div>
+    <!-- MODAL KONFIRMASI HAPUS (ADMIN ONLY) -->
+    <div id="customConfirm" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-icon-danger">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
             </div>
-            <div style="font-size: 11px; color: var(--text-secondary); font-weight: bold;" id="p-perolehan"></div>
+            <h3 class="modal-title">Konfirmasi Penghapusan</h3>
+            <p class="modal-desc" id="confirmText">Yakin ingin menghapus aset ini?</p>
+            <div class="modal-actions">
+                <button onclick="closeConfirmModal()" class="btn btn-outline">Batal</button>
+                <button onclick="executeHapus()" class="btn btn-danger">Hapus Permanen</button>
+            </div>
         </div>
     </div>
 
+    <!-- ==========================================
+         VIEW 1: SPLIT EXECUTIVE LOGIN SCREEN
+         ========================================== -->
+    <div id="loginPage" class="login-split-screen">
+        <div class="login-brand-panel">
+            <div class="brand-mark-row">
+                <div class="logo-box">
+                    <img src="logo.png" alt="Logo ASD" class="logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="logo-fallback">A</div>
+                </div>
+                <div>
+                    <span class="org-tag">ABHIJATI SAHAR DHARMA</span>
+                    <h1 class="system-name">AIAS<span>.</span> <small>BETA</small></h1>
+                </div>
+            </div>
+
+            <div class="hero-copy">
+                <h2>Asset Valuation &amp; Operational Intelligence.</h2>
+                <p>Sistem pemantauan nilai buku, analisis penyusutan aset tetap, dan pengelolaan inventaris produksi secara real-time.</p>
+            </div>
+
+            <div class="login-feature-pills">
+                <div class="f-pill">Executive Data Insight</div>
+                <div class="f-pill">Proyeksi Penyusutan Multi-Tahun</div>
+                <div class="f-pill">Operasional &amp; QR Inventory</div>
+            </div>
+
+            <div class="login-panel-footer">
+                <span>DPSA GROUP — YOGYAKARTA</span>
+                <span>BUILD 1.0-BETA</span>
+            </div>
+        </div>
+
+        <div class="login-form-panel">
+            <div class="login-form-box">
+                <div class="form-head">
+                    <h3>Masuk ke Sistem</h3>
+                    <p>Otentikasi otomatis menyesuaikan tampilan Direksi atau Admin.</p>
+                </div>
+
+                <div class="input-group">
+                    <label for="user">ID Pengguna</label>
+                    <input type="text" id="user" placeholder="admin / guest" autocomplete="off">
+                </div>
+
+                <div class="input-group">
+                    <label for="pass">Kata Sandi</label>
+                    <div class="pass-field-wrap">
+                        <input type="password" id="pass" placeholder="Masukkan kata sandi" onkeypress="if(event.key === 'Enter') doLogin()">
+                        <button type="button" class="toggle-pass-btn" onclick="togglePassword()" aria-label="Lihat Sandi">
+                            <svg id="eyeIcon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <button id="btnLoginSubmit" onclick="doLogin()" class="btn btn-primary btn-lg">
+                    <span id="btnLoginText">MASUK WORKSPACE</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         VIEW 2: WORKSPACE CONTAINER
+         ========================================== -->
+    <div id="dashboardPage" class="workspace-shell hidden">
+        <!-- TOPBAR -->
+        <header class="topbar">
+            <div class="topbar-brand">
+                <div class="logo-box sm">
+                    <img src="logo.png" alt="Logo" class="logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="logo-fallback">A</div>
+                </div>
+                <div>
+                    <div class="topbar-title">AIAS<span>.</span> <span class="badge-beta">BETA 1.1.0</span></div>
+                    <div class="topbar-sub" id="topbarSubtitle">Abhijati Sahar Dharma — Asset Management</div>
+                </div>
+            </div>
+
+            <div class="topbar-actions">
+                <span id="roleBadge" class="role-pill">Session Active</span>
+                <button onclick="location.reload()" class="btn-logout">Keluar</button>
+            </div>
+        </header>
+
+        <!-- =========================================================================
+             SECTION A: GUEST / CEO / KEUANGAN (MODERN EXECUTIVE DATA VISUALIZATION)
+             ========================================================================= -->
+        <main id="guestView" class="workspace-container hidden">
+            
+            <!-- 1. EXECUTIVE HERO HEADER & QUICK FILTER -->
+            <div class="exec-hero-card">
+                <div class="exec-hero-left">
+                    <div class="live-indicator">
+                        <span class="pulse-dot"></span>
+                        <span>LIVE CLOUD TELEMETRY • ABHIJATI SAHAR DHARMA</span>
+                    </div>
+                    <h2>Executive Asset &amp; Financial Intelligence</h2>
+                    <p>Analisis valuasi nilai buku, tren penyusutan multi-tahun, distribusi modal per zona fasilitas, dan pemantauan risiko operasional.</p>
+                </div>
+                <div class="exec-hero-right">
+                    <div class="hero-filter-box">
+                        <label for="execZoneFilter">Filter Zona Fasilitas</label>
+                        <select id="execZoneFilter" onchange="refreshExecutiveView()">
+                            <option value="ALL">Seluruh Zona / Fasilitas</option>
+                        </select>
+                    </div>
+                    <div class="hero-date-chip" id="execReportDate">Memuat tanggal...</div>
+                </div>
+            </div>
+
+            <!-- 2. MODERN KPI CARDS (DENGAN PROGRESS BAR & INDIKATOR) -->
+            <section class="kpi-grid-modern">
+                <div class="kpi-card-modern">
+                    <div class="kpi-top-row">
+                        <span class="kpi-label">TOTAL INVESTASI PEROLEHAN</span>
+                        <span class="kpi-badge badge-slate" id="kpiTotalUnit">0 Unit</span>
+                    </div>
+                    <div class="kpi-value" id="kpiTotalPerolehan">Rp 0</div>
+                    <div class="kpi-sub-metric" id="kpiAvgAge">Rata-rata umur aset: 0 bulan</div>
+                </div>
+
+                <div class="kpi-card-modern kpi-featured">
+                    <div class="kpi-top-row">
+                        <span class="kpi-label">NILAI BUKU BERSIH SAAT INI</span>
+                        <span class="kpi-badge badge-emerald" id="kpiRasioBadge">0% Tersisa</span>
+                    </div>
+                    <div class="kpi-value text-emerald" id="kpiNilaiBuku">Rp 0</div>
+                    <div class="kpi-mini-progress">
+                        <div class="kpi-mini-fill bg-emerald" id="kpiBookBar" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="kpi-card-modern">
+                    <div class="kpi-top-row">
+                        <span class="kpi-label">AKUMULASI PENYUSUTAN</span>
+                        <span class="kpi-badge badge-amber" id="kpiSusutBadge">0% Terpakai</span>
+                    </div>
+                    <div class="kpi-value text-amber" id="kpiAkumulasiSusut">Rp 0</div>
+                    <div class="kpi-sub-metric" id="kpiSusutBulanan">Beban aktif: Rp 0 / bln</div>
+                </div>
+
+                <div class="kpi-card-modern">
+                    <div class="kpi-top-row">
+                        <span class="kpi-label">KESIAPAN OPERASIONAL</span>
+                        <span class="kpi-badge badge-blue" id="kpiHealthBadge">0 / 0 Unit</span>
+                    </div>
+                    <div class="kpi-value" id="kpiKesehatan">0%</div>
+                    <div class="kpi-mini-progress">
+                        <div class="kpi-mini-fill bg-blue" id="kpiHealthBar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. EXECUTIVE DECISION INSIGHTS (3 KARTU NARASI CERDAS) -->
+            <section class="insights-strip">
+                <div class="insight-item">
+                    <div class="insight-header">
+                        <span class="insight-tag tag-blue">KONSENTRASI MODAL</span>
+                    </div>
+                    <p id="insightTopCategory">Menganalisis distribusi nilai kategori...</p>
+                </div>
+                <div class="insight-item">
+                    <div class="insight-header">
+                        <span class="insight-tag tag-emerald">EFISIENSI NILAI BUKU</span>
+                    </div>
+                    <p id="insightDepreciationRate">Menghitung rasio penyusutan berjalan...</p>
+                </div>
+                <div class="insight-item">
+                    <div class="insight-header">
+                        <span class="insight-tag tag-amber">PERHATIAN OPERASIONAL</span>
+                    </div>
+                    <p id="insightMaintenanceAlert">Memeriksa status kelayakan unit...</p>
+                </div>
+            </section>
+
+            <!-- 4. CHARTS ROW 1: PERBANDINGAN PEROLEHAN VS NILAI BUKU + PROYEKSI TREN TAHUNAN -->
+            <section class="charts-grid-2">
+                <div class="panel-card">
+                    <div class="panel-header space-between">
+                        <div>
+                            <h3>Perbandingan Modal Awal vs Nilai Buku per Kategori</h3>
+                            <p>Selisih batang menunjukkan tingkat penyusutan di setiap divisi aset</p>
+                        </div>
+                    </div>
+                    <div class="chart-canvas-wrap lg">
+                        <canvas id="categoryCompareChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="panel-card">
+                    <div class="panel-header space-between">
+                        <div>
+                            <h3>Kurva Proyeksi Nilai Buku Perusahaan</h3>
+                            <p>Estimasi penurunan nilai portofolio aktif (Tahun Ini s/d +3 Tahun)</p>
+                        </div>
+                    </div>
+                    <div class="chart-canvas-wrap lg">
+                        <canvas id="depreciationForecastChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. ANALYTICS ROW 2: LOKASI, KONDISI, TOP 5 ASET & WATCHLIST RISIKO -->
+            <section class="analytics-grid-3">
+                <!-- Kolom 1: Alokasi Nilai per Lokasi -->
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <h3>Valuasi per Zona / Lokasi</h3>
+                        <p>Distribusi nilai buku berdasarkan penempatan</p>
+                    </div>
+                    <div class="chart-canvas-wrap">
+                        <canvas id="locationValueChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Kolom 2: Top 5 Aset Bernilai Tertinggi -->
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <h3>Top 5 Aset Bernilai Tertinggi</h3>
+                        <p>Kontributor terbesar terhadap neraca aset aktif</p>
+                    </div>
+                    <div id="topAssetsLeaderboard" class="leaderboard-list">
+                        <div class="empty-cell">Memuat peringkat aset...</div>
+                    </div>
+                </div>
+
+                <!-- Kolom 3: Status & Watchlist Perhatian Manajemen -->
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <h3>Status &amp; Watchlist Perhatian</h3>
+                        <p>Unit berkendala &amp; aset habis masa susut (Rp 0)</p>
+                    </div>
+                    <div class="mini-doughnut-row">
+                        <div class="mini-doughnut-box">
+                            <canvas id="conditionStatusChart"></canvas>
+                        </div>
+                        <div class="condition-legend-stats" id="conditionStatsBox">
+                            <!-- Diisi otomatis via JS -->
+                        </div>
+                    </div>
+                    <div class="watchlist-box" id="managementWatchlist">
+                        <!-- Diisi otomatis via JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. EXECUTIVE ASSET EXPLORER (READ-ONLY CLEAN PRESENTATION) -->
+            <section class="explorer-grid">
+                <div class="panel-card">
+                    <div class="panel-header space-between">
+                        <div>
+                            <h3>Rincian Portofolio Aset</h3>
+                            <p>Klik baris aset untuk inspeksi visual &amp; simulasi nilai buku di masa depan</p>
+                        </div>
+                    </div>
+
+                    <div class="explorer-controls">
+                        <input type="text" id="guestSearchInput" placeholder="Cari nama mesin, kode, kategori, atau zona..." oninput="renderGuestTable()">
+                        <select id="guestSortOption" onchange="renderGuestTable()">
+                            <option value="value_desc">Urut: Nilai Buku Tertinggi</option>
+                            <option value="newest">Urut: Terbaru</option>
+                            <option value="category">Urut: Kategori</option>
+                            <option value="name">Urut: Nama (A-Z)</option>
+                        </select>
+                    </div>
+
+                    <div class="asset-table-wrap">
+                        <table class="asset-table">
+                            <thead>
+                                <tr>
+                                    <th>Identitas Aset</th>
+                                    <th>Kategori &amp; Zona</th>
+                                    <th class="text-right">Harga Perolehan</th>
+                                    <th class="text-right">Nilai Buku</th>
+                                    <th class="text-center">Kondisi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="guestTableBody">
+                                <tr><td colspan="5" class="empty-cell">Memuat data laporan...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Panel Inspeksi Bersih Khusus Direksi -->
+                <div class="panel-card inspector-panel">
+                    <div class="inspector-top">
+                        <div>
+                            <span class="code-chip" id="gKode">-</span>
+                            <h2 class="inspector-title" id="gNama">Pilih Aset di Tabel</h2>
+                        </div>
+                        <span class="status-pill" id="gKondisi">-</span>
+                    </div>
+
+                    <div class="guest-photo-showcase" id="gPhotoBox">
+                        <span>DOKUMENTASI VISUAL TIDAK TERSEDIA</span>
+                    </div>
+
+                    <div class="meta-grid">
+                        <div class="meta-box">
+                            <span>Kategori Aset</span>
+                            <strong id="gKategori">-</strong>
+                        </div>
+                        <div class="meta-box">
+                            <span>Lokasi Penempatan</span>
+                            <strong id="gLokasi">-</strong>
+                        </div>
+                        <div class="meta-box">
+                            <span>Periode Perolehan</span>
+                            <strong id="gWaktu">-</strong>
+                        </div>
+                        <div class="meta-box">
+                            <span>Beban Susut / Bulan</span>
+                            <strong class="text-danger" id="gSusutBulan">-</strong>
+                        </div>
+                    </div>
+
+                    <div class="valuation-simulator">
+                        <div class="val-row">
+                            <span>Nilai Perolehan Awal</span>
+                            <strong id="gHargaAwal">-</strong>
+                        </div>
+                        <div class="val-row">
+                            <span>Akumulasi Penyusutan</span>
+                            <strong class="text-danger" id="gAkumulasiSusut">Rp 0</strong>
+                        </div>
+
+                        <div class="depreciation-bar-wrap">
+                            <div class="dep-bar-labels">
+                                <span>Retensi Nilai Buku</span>
+                                <span id="gPersenSisa">100%</span>
+                            </div>
+                            <div class="dep-track">
+                                <div class="dep-fill" id="gDepProgressBar" style="width: 100%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="sim-control-row">
+                            <label for="gInputBulanKe">Simulasi Proyeksi (Bulan ke-)</label>
+                            <div class="sim-inputs">
+                                <input type="number" id="gInputBulanKe" min="0" value="0" oninput="updateGuestSimulator(this.value)">
+                                <button type="button" class="btn-reset-sim" onclick="resetGuestSimulator()">Saat Ini</button>
+                            </div>
+                        </div>
+
+                        <div class="net-book-banner">
+                            <span>NILAI BUKU BERSIH</span>
+                            <strong id="gNilaiBuku">-</strong>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- =========================================================================
+             SECTION B: ADMIN OPERATIONS CONSOLE (OPERASIONAL, CRUD & QR)
+             ========================================================================= -->
+        <main id="adminView" class="workspace-container hidden">
+            
+            <div class="admin-toolbar">
+                <div class="admin-toolbar-info">
+                    <h2>Console Operasional &amp; Manajemen Inventaris</h2>
+                    <p>Input data aset baru, pembaruan status lapangan, dan pencetakan label QR massal.</p>
+                </div>
+                <div class="admin-toolbar-buttons">
+                    <button onclick="window.open('https://docs.google.com/spreadsheets/d/1FypxEXpukoM_U3GK44mrY5APpvGRL3uTnR2DGb21jw8/edit', '_blank')" class="btn btn-outline btn-sm">
+                        Buka Google Sheets
+                    </button>
+                    <button id="btnDownloadZip" onclick="downloadAllQRsAsZip()" class="btn btn-dark btn-sm">
+                        Download Semua QR (ZIP)
+                    </button>
+                </div>
+            </div>
+
+            <div class="admin-console-grid">
+                
+                <!-- KOLOM KIRI: FORM INPUT / EDIT ASET -->
+                <div class="panel-card admin-form-panel">
+                    <div class="panel-header space-between">
+                        <div>
+                            <h3 id="formHeadingTitle">Input Aset Baru</h3>
+                            <p>Data langsung tersinkronisasi ke Cloud Database</p>
+                        </div>
+                        <span id="editModeBanner" class="edit-badge hidden">MODE EDIT</span>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Nama Aset / Mesin *</label>
+                        <input type="text" id="nama" placeholder="Misal: CNC Router 1325">
+                    </div>
+
+                    <div class="input-row-2">
+                        <div class="input-group">
+                            <label>Kode Serial</label>
+                            <input type="text" id="kode" class="mono-input" placeholder="ASD/MSN/2026/PROD/018">
+                        </div>
+                        <div class="input-group">
+                            <label>Kategori</label>
+                            <select id="kategori">
+                                <option value="Mesin Produksi">Mesin Produksi</option>
+                                <option value="Tanah">Tanah</option>
+                                <option value="Bangunan">Bangunan</option>
+                                <option value="Kendaraan">Kendaraan</option>
+                                <option value="Elektronik">Elektronik</option>
+                                <option value="Furniture">Furniture</option>
+                                <option value="Alat Kantor">Alat Kantor</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="input-row-2">
+                        <div class="input-group">
+                            <label>Zona / Lokasi</label>
+                            <input type="text" id="lokasi" placeholder="Misal: ABHIJATI_WS">
+                        </div>
+                        <div class="input-group">
+                            <label>Kondisi Operasional</label>
+                            <select id="kondisi">
+                                <option value="Berfungsi">Berfungsi</option>
+                                <option value="Perbaikan">Perbaikan</option>
+                                <option value="Rusak">Rusak</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="input-row-2">
+                        <div class="input-group">
+                            <label>Harga Perolehan (Rp)</label>
+                            <input type="number" id="hargaBeli" placeholder="15000000">
+                        </div>
+                        <div class="input-group">
+                            <label>Susut / Bulan (Rp)</label>
+                            <input type="number" id="susutBulan" placeholder="250000">
+                        </div>
+                    </div>
+
+                    <div class="input-row-2">
+                        <div class="input-group">
+                            <label>Bulan Perolehan</label>
+                            <select id="bulanBeli">
+                                <option value="Januari">Januari</option>
+                                <option value="Februari">Februari</option>
+                                <option value="Maret">Maret</option>
+                                <option value="April">April</option>
+                                <option value="Mei">Mei</option>
+                                <option value="Juni">Juni</option>
+                                <option value="Juli">Juli</option>
+                                <option value="Agustus">Agustus</option>
+                                <option value="September">September</option>
+                                <option value="Oktober">Oktober</option>
+                                <option value="November">November</option>
+                                <option value="Desember">Desember</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Tahun Perolehan</label>
+                            <input type="number" id="tahun" value="2026">
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Foto Fisik Aset <span class="hint">(Opsional saat Edit)</span></label>
+                        <input type="file" id="fotoInput" accept="image/*" class="file-drop-input">
+                    </div>
+
+                    <div class="admin-form-actions">
+                        <button id="btnCancelEdit" onclick="batalkanEdit()" class="btn btn-outline hidden">Batal Edit</button>
+                        <button id="btnSave" onclick="saveData()" class="btn btn-primary">SIMPAN ASET</button>
+                    </div>
+                </div>
+
+                <!-- KOLOM KANAN: DATABASE OPERASIONAL, QR GENERATOR & CRUD -->
+                <div class="panel-card admin-db-panel">
+                    <div class="panel-header space-between">
+                        <div>
+                            <h3>Database Operasional (<span id="adminTotalCount">0</span> Unit)</h3>
+                            <p>Pilih baris untuk cetak QR satuan, edit spesifikasi, atau hapus aset</p>
+                        </div>
+                    </div>
+
+                    <div class="admin-selected-card" id="adminSelectedBox">
+                        <div class="admin-sel-left">
+                            <div class="admin-photo-thumb" id="aPhotoBox">
+                                <span>NO IMG</span>
+                            </div>
+                            <div>
+                                <span class="code-chip" id="aKode">-</span>
+                                <h4 id="aNama">Pilih aset di tabel bawah</h4>
+                                <p class="admin-sel-meta" id="aMeta">Lokasi: - • Nilai Buku: -</p>
+                                <div class="admin-sel-btns">
+                                    <button id="btnEditAsset" onclick="siapkanEdit()" class="btn btn-warning btn-xs hidden">Edit Data</button>
+                                    <button id="btnDeleteAsset" onclick="hapusAssetLokalDanCloud()" class="btn btn-danger btn-xs hidden">Hapus Aset</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="admin-sel-qr">
+                            <div id="qrcode"></div>
+                            <button id="btnDownloadSingleQr" onclick="downloadQRCode()" class="btn btn-outline btn-xs hidden">Unduh QR</button>
+                        </div>
+                    </div>
+
+                    <div class="explorer-controls">
+                        <input type="text" id="adminSearchInput" placeholder="Cari kode serial, nama barang, atau zona..." oninput="renderAdminTable()">
+                        <select id="adminSortOption" onchange="renderAdminTable()">
+                            <option value="newest">Terbaru Ditambahkan</option>
+                            <option value="name">Nama (A-Z)</option>
+                            <option value="category">Kategori</option>
+                        </select>
+                    </div>
+
+                    <div class="asset-table-wrap admin-table-height">
+                        <table class="asset-table">
+                            <thead>
+                                <tr>
+                                    <th>Kode &amp; Nama Barang</th>
+                                    <th>Zona</th>
+                                    <th>Status</th>
+                                    <th class="text-right">Aksi Cepat</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminTableBody">
+                                <tr><td colspan="4" class="empty-cell">Memuat database inventaris...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
     <script>
-        // --- KONFIGURASI API ---
-        const SHEET_API = "https://script.google.com/macros/s/AKfycbyPXQM8-bKj0E3Nq8cPCT21SkgQQs0JxXJ3auyTSpdOm6Ajfd3fsrEh99XBC1lvO8uNUw/exec";
+        const CLOUD_API = "https://script.google.com/macros/s/AKfycbzvhd0uo8xtbytXUOIQT57UFhvVuZ1XGyU3amwSmlV5PuLGMo8m59sTiqX9tQBm0QLr8A/exec";
+                            
+        let rawAssets = [];
+        let selectedAssetData = null;
+        let guestRealTimeMonths = 0;
+        let qrCodeInstance = null;
+        let loginAttempts = 0;
+        let currentRole = 'guest';
         
-        async function loadData() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const targetId = urlParams.get('id'); 
+        let isEditMode = false;
+        let editKodeLama = "";
+        let editFotoLama = "";
+        let autoSelectKode = "";
 
-            if (!targetId) {
-                document.getElementById('loading').innerHTML = "❌ KODE TIDAK TERDETEKSI";
-                return;
-            }
+        // Chart Instances
+        let categoryCompareChartInstance = null;
+        let forecastChartInstance = null;
+        let locationChartInstance = null;
+        let conditionChartInstance = null;
 
-            try {
-                const response = await fetch(`${SHEET_API}?id=${encodeURIComponent(targetId)}`);
-                const item = await response.json();
+        const namaBulanMap = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
 
-                if (item && !item.error) {
-                    document.getElementById('loading').style.display = 'none';
-                    document.getElementById('app').style.display = 'block';
-                    
-                    document.getElementById('p-nama').innerText = item.nama || "---";
-                    document.getElementById('p-kategori').innerText = item.kategori || "---";
-                    document.getElementById('p-kode').innerText = item.kode || "---";
-                    document.getElementById('p-lokasi').innerText = item.lokasi || "---";
-                    document.getElementById('p-kondisi').innerText = item.kondisi || "---";
-                    
-                    // Tampilkan Bulan & Tahun
-                    const bulan = item.bulan || "";
-                    const tahun = item.tahun || "";
-                    document.getElementById('p-perolehan').innerText = (bulan || tahun) ? `Pembelian: ${bulan} ${tahun}` : "Pembelian: -";
-
-                    // --- LOGIKA GAMBAR ---
-                    const imgElement = document.getElementById('p-img');
-                    let imgUrlFromSheet = item.gambar ? item.gambar.trim() : "";
-
-                    // Jika di Sheets kosong, ambil default.jpg di folder img
-                    if (imgUrlFromSheet === "" || imgUrlFromSheet === "-" || imgUrlFromSheet === "None") {
-                        imgElement.src = "./img/default.jpg";
-                    } else if (imgUrlFromSheet.startsWith('http')) {
-                        imgElement.src = imgUrlFromSheet;
-                    } else {
-                        imgElement.src = "./img/default.jpg";
-                    }
-
-                    // Backup jika link di sheets mati atau file default.jpg tidak ada
-                    imgElement.onerror = function() {
-                        this.src = "https://via.placeholder.com/450x280/1e293b/38bdf8?text=AIS+ABHIJATI";
-                    };
-
-                } else {
-                    document.getElementById('loading').innerHTML = `<div class="error-msg">❌ DATA TIDAK DITEMUKAN<br><small>${targetId}</small></div>`;
-                }
-            } catch (error) {
-                document.getElementById('loading').innerText = "⚠️ GAGAL TERHUBUNG KE DATABASE";
+        function togglePassword() {
+            const passInput = document.getElementById('pass');
+            const eyeIcon = document.getElementById('eyeIcon');
+            if (passInput.type === 'password') {
+                passInput.type = 'text';
+                eyeIcon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+            } else {
+                passInput.type = 'password';
+                eyeIcon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
             }
         }
 
-        window.onload = loadData;
+        function showToast(message, type = 'success') {
+            const existing = document.getElementById('toastPopup');
+            if (existing) existing.remove();
+            const toast = document.createElement('div');
+            toast.id = 'toastPopup';
+            toast.className = `toast-popup ${type}`;
+            toast.innerHTML = `<span>${message}</span>`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 400); }, 3000);
+        }
+
+        function forceCloseApp() {
+            document.body.innerHTML = `
+                <div class="blocked-screen">
+                    <div class="blocked-card">
+                        <h2>AKSES DIBLOKIR</h2>
+                        <p>Batas percobaan gagal terlampaui.<br><span>Mematikan sesi...</span></p>
+                    </div>
+                </div>`;
+            setTimeout(() => { window.location.href = "about:blank"; }, 2500);
+        }
+
+        async function doLogin() {
+            const u = document.getElementById('user').value.trim();
+            const p = document.getElementById('pass').value.trim();
+            const btn = document.getElementById('btnLoginSubmit');
+            const btnText = document.getElementById('btnLoginText');
+            
+            if (!u || !p) {
+                showToast("USERNAME & PASSWORD WAJIB DIISI", "error");
+                return;
+            }
+
+            btnText.innerText = "MEMVERIFIKASI...";
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(CLOUD_API, { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+                    body: JSON.stringify({ action: "login", username: u, password: p }) 
+                });
+                
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    loginAttempts = 0; 
+                    setupView(result.role);
+                } else {
+                    loginAttempts++;
+                    if (loginAttempts >= 3) forceCloseApp();
+                    else showToast(`KREDENSIAL SALAH (${loginAttempts}/3)`, 'error');
+                }
+            } catch (err) {
+                showToast("GAGAL MENGHUBUNGI SERVER", "error");
+            } finally {
+                btnText.innerText = "MASUK WORKSPACE";
+                btn.disabled = false;
+            }
+        }
+
+        function setupView(role) {
+            currentRole = role; 
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('dashboardPage').classList.remove('hidden');
+
+            const badge = document.getElementById('roleBadge');
+            const subtitle = document.getElementById('topbarSubtitle');
+
+            if (role === 'admin') {
+                badge.innerText = 'Admin Operations';
+                badge.className = 'role-pill role-admin';
+                subtitle.innerText = 'Abhijati Sahar Dharma — Operational  Console';
+                document.getElementById('guestView').classList.add('hidden');
+                document.getElementById('adminView').classList.remove('hidden');
+            } else {
+                badge.innerText = 'Executive / Finance View';
+                badge.className = 'role-pill role-exec';
+                subtitle.innerText = 'Abhijati Sahar Dharma — Executive Asset Intelligence';
+                document.getElementById('adminView').classList.add('hidden');
+                document.getElementById('guestView').classList.remove('hidden');
+                
+                const now = new Date();
+                document.getElementById('execReportDate').innerText = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+            }
+
+            loadCloudData();
+        }
+
+        function formatRupiah(number) { 
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(number); 
+        }
+
+        function formatCompactRupiah(number) {
+            if (number >= 1e9) return 'Rp ' + (number / 1e9).toFixed(2) + ' M';
+            if (number >= 1e6) return 'Rp ' + (number / 1e6).toFixed(1) + ' Jt';
+            return formatRupiah(number);
+        }
+
+        function hitungValuasiItem(item) {
+            const hb = Number(item.harga_beli || item.harga || 0);
+            const sb = Number(item.susut_per_bulan || item.susut || 0);
+            const blnNama = item.bulan_pembelian || item.bulan || "Januari";
+            const thnBeli = parseInt(item.tahun_pembelian || item.tahun || 2026);
+            let blnIndex = namaBulanMap.indexOf(blnNama);
+            if (blnIndex === -1) blnIndex = 0;
+
+            const today = new Date();
+            const diffMonths = Math.max(0, (today.getFullYear() - thnBeli) * 12 + (today.getMonth() - blnIndex));
+            const akumulasi = Math.min(hb, sb * diffMonths);
+            const nilaiBuku = Math.max(0, hb - akumulasi);
+            return { hb, sb, diffMonths, akumulasi, nilaiBuku };
+        }
+
+        function resolveDriveImageUrl(item) {
+            let photoUrl = item.gambar || item.foto || item.image || item.url_foto || '';
+            if (!photoUrl) {
+                for (let key in item) {
+                    if (typeof item[key] === 'string' && item[key].includes('drive.google.com')) { photoUrl = item[key]; break; }
+                }
+            }
+            if (photoUrl && typeof photoUrl === 'string' && photoUrl.trim().startsWith('http')) {
+                photoUrl = photoUrl.trim();
+                let viewUrl = photoUrl;
+                if (photoUrl.includes("drive.google.com")) {
+                    const fileIdMatch = photoUrl.match(/[-\w]{25,}/);
+                    if (fileIdMatch) {
+                        photoUrl = `https://drive.google.com/thumbnail?id=${fileIdMatch[0]}&sz=w800`;
+                        viewUrl = `https://drive.google.com/file/d/${fileIdMatch[0]}/view`;
+                    }
+                }
+                return { thumb: photoUrl, view: viewUrl };
+            }
+            return null;
+        }
+
+        function loadCloudData() {
+            const oldScript = document.getElementById('jsonp-script');
+            if (oldScript) oldScript.remove();
+
+            let isDataLoaded = false;
+            const timeoutTimer = setTimeout(() => { if (!isDataLoaded) fallbackToLocal(); }, 7000);
+
+            window.handleSheetData = function(data) {
+                isDataLoaded = true; clearTimeout(timeoutTimer);
+                if (Array.isArray(data) && data.length > 0) {
+                    rawAssets = data;
+                    try { localStorage.setItem('ais_asd_backup', JSON.stringify(data)); } catch (e) { }
+                } else { fallbackToLocal(); return; }
+                routeDataRender();
+                const s = document.getElementById('jsonp-script');
+                if (s) s.remove();
+            };
+
+            function fallbackToLocal() {
+                const local = localStorage.getItem('ais_asd_backup');
+                rawAssets = local ? JSON.parse(local) : [];
+                routeDataRender();
+            }
+
+            const script = document.createElement('script');
+            script.id = 'jsonp-script';
+            script.src = `${CLOUD_API}?callback=handleSheetData&t=${Date.now()}`;
+            script.onerror = function() { clearTimeout(timeoutTimer); fallbackToLocal(); };
+            document.body.appendChild(script);
+        }
+
+        function routeDataRender() {
+            if (currentRole === 'admin') {
+                renderAdminTable();
+            } else {
+                populateZoneFilter();
+                refreshExecutiveView();
+            }
+        }
+
+        // =========================================================================
+        // LOGIKA SECTION A: GUEST / CEO / KEUANGAN (MODERN ANALYTICS ENGINE)
+        // =========================================================================
+        function populateZoneFilter() {
+            const zoneSelect = document.getElementById('execZoneFilter');
+            const zones = new Set();
+            rawAssets.forEach(item => {
+                if (item.lokasi && item.lokasi.trim()) zones.add(item.lokasi.trim());
+            });
+            zoneSelect.innerHTML = '<option value="ALL">Seluruh Zona / Fasilitas (' + rawAssets.length + ' Unit)</option>';
+            Array.from(zones).sort().forEach(z => {
+                const opt = document.createElement('option');
+                opt.value = z;
+                opt.textContent = `Zona: ${z}`;
+                zoneSelect.appendChild(opt);
+            });
+        }
+
+        function getFilteredExecutiveAssets() {
+            const selectedZone = document.getElementById('execZoneFilter').value;
+            if (selectedZone === 'ALL') return [...rawAssets];
+            return rawAssets.filter(item => (item.lokasi || '').trim() === selectedZone);
+        }
+
+        function refreshExecutiveView() {
+            const dataset = getFilteredExecutiveAssets();
+            buildExecutiveAnalytics(dataset);
+            renderGuestTable(dataset);
+        }
+
+        function buildExecutiveAnalytics(dataset) {
+            let totalPerolehan = 0;
+            let totalNilaiBuku = 0;
+            let totalAkumulasi = 0;
+            let totalSusutBulananAktif = 0;
+            let totalUmurBulan = 0;
+
+            let countBerfungsi = 0;
+            let countPerbaikan = 0;
+            let countRusak = 0;
+
+            const categoryCostMap = {};
+            const categoryBookMap = {};
+            const locationBookMap = {};
+            const valuedItems = [];
+            const watchlistItems = [];
+
+            dataset.forEach(item => {
+                const val = hitungValuasiItem(item);
+                totalPerolehan += val.hb;
+                totalNilaiBuku += val.nilaiBuku;
+                totalAkumulasi += val.akumulasi;
+                totalUmurBulan += val.diffMonths;
+
+                // Hanya hitung beban penyusutan rutin untuk aset yang nilai bukunya masih > 0
+                if (val.nilaiBuku > 0) {
+                    totalSusutBulananAktif += val.sb;
+                }
+
+                const kat = item.kategori || 'Lainnya';
+                categoryCostMap[kat] = (categoryCostMap[kat] || 0) + val.hb;
+                categoryBookMap[kat] = (categoryBookMap[kat] || 0) + val.nilaiBuku;
+
+                const lok = item.lokasi || 'Belum Terpetakan';
+                locationBookMap[lok] = (locationBookMap[lok] || 0) + val.nilaiBuku;
+
+                const kond = (item.keterangan || item.kondisi || 'Berfungsi').toLowerCase();
+                if (kond.includes('rusak')) {
+                    countRusak++;
+                    watchlistItems.push({ nama: item.nama_barang || item.nama, kode: item.kode_barang || item.kode, type: 'Rusak', label: 'Rusak' });
+                } else if (kond.includes('perbaikan')) {
+                    countPerbaikan++;
+                    watchlistItems.push({ nama: item.nama_barang || item.nama, kode: item.kode_barang || item.kode, type: 'Perbaikan', label: 'Perbaikan' });
+                } else {
+                    countBerfungsi++;
+                    if (val.hb > 0 && val.nilaiBuku === 0) {
+                        watchlistItems.push({ nama: item.nama_barang || item.nama, kode: item.kode_barang || item.kode, type: 'Habis Susut', label: 'Nilai Buku Rp 0' });
+                    }
+                }
+
+                valuedItems.push({
+                    nama: item.nama_barang || item.nama || '-',
+                    kode: item.kode_barang || item.kode || '-',
+                    kategori: kat,
+                    nilaiBuku: val.nilaiBuku,
+                    hb: val.hb
+                });
+            });
+
+            const totalUnit = dataset.length;
+            const avgAge = totalUnit > 0 ? Math.round(totalUmurBulan / totalUnit) : 0;
+            const persenSehat = totalUnit > 0 ? Math.round((countBerfungsi / totalUnit) * 100) : 0;
+            const persenSisaTotal = totalPerolehan > 0 ? Math.round((totalNilaiBuku / totalPerolehan) * 100) : 0;
+            const persenSusutTotal = 100 - persenSisaTotal;
+
+            // 1. Update KPI Cards Modern
+            document.getElementById('kpiTotalPerolehan').innerText = formatCompactRupiah(totalPerolehan);
+            document.getElementById('kpiTotalUnit').innerText = `${totalUnit} Unit`;
+            document.getElementById('kpiAvgAge').innerText = `Rata-rata umur pakai: ${avgAge} bulan`;
+
+            document.getElementById('kpiNilaiBuku').innerText = formatCompactRupiah(totalNilaiBuku);
+            document.getElementById('kpiRasioBadge').innerText = `${persenSisaTotal}% Tersisa`;
+            document.getElementById('kpiBookBar').style.width = `${persenSisaTotal}%`;
+
+            document.getElementById('kpiAkumulasiSusut').innerText = formatCompactRupiah(totalAkumulasi);
+            document.getElementById('kpiSusutBadge').innerText = `${persenSusutTotal}% Terpakai`;
+            document.getElementById('kpiSusutBulanan').innerText = `Beban aktif: ${formatCompactRupiah(totalSusutBulananAktif)} / bln`;
+
+            document.getElementById('kpiKesehatan').innerText = `${persenSehat}%`;
+            document.getElementById('kpiHealthBadge').innerText = `${countBerfungsi} / ${totalUnit} Normal`;
+            document.getElementById('kpiHealthBar').style.width = `${persenSehat}%`;
+
+            // 2. Narasi Executive Insights
+            const sortedCats = Object.entries(categoryBookMap).sort((a, b) => b[1] - a[1]);
+            if (sortedCats.length > 0 && totalNilaiBuku > 0) {
+                const topCatName = sortedCats[0][0];
+                const topCatShare = Math.round((sortedCats[0][1] / totalNilaiBuku) * 100);
+                document.getElementById('insightTopCategory').innerHTML = `Kategori <strong>${topCatName}</strong> mendominasi <strong>${topCatShare}%</strong> (${formatCompactRupiah(sortedCats[0][1])}) dari total nilai buku aktif.`;
+            } else {
+                document.getElementById('insightTopCategory').innerText = "Belum ada data valuasi kategori aktif.";
+            }
+
+            document.getElementById('insightDepreciationRate').innerHTML = `Portofolio telah menyusut <strong>${persenSusutTotal}%</strong> dari modal awal, dengan beban depresiasi berjalan <strong>${formatRupiah(totalSusutBulananAktif)}/bulan</strong>.`;
+
+            const totalKendala = countPerbaikan + countRusak;
+            if (totalKendala > 0) {
+                document.getElementById('insightMaintenanceAlert').innerHTML = `Terdapat <strong>${totalKendala} unit berkendala</strong> (${countPerbaikan} perbaikan, ${countRusak} rusak) yang membutuhkan keputusan alokasi biaya servis.`;
+            } else {
+                document.getElementById('insightMaintenanceAlert').innerHTML = `Seluruh <strong>${totalUnit} unit aset</strong> beroperasi dalam kondisi <strong>Normal (100%)</strong>.`;
+            }
+
+            // 3. Top 5 Aset Leaderboard
+            renderTopAssetsLeaderboard(valuedItems, totalNilaiBuku);
+
+            // 4. Watchlist & Condition Summary
+            renderWatchlistAndCondition(watchlistItems, [countBerfungsi, countPerbaikan, countRusak]);
+
+            // 5. Render All Modern Charts
+            renderModernCharts(dataset, categoryCostMap, categoryBookMap, locationBookMap, [countBerfungsi, countPerbaikan, countRusak]);
+        }
+
+        function renderTopAssetsLeaderboard(valuedItems, totalNilaiBuku) {
+            const container = document.getElementById('topAssetsLeaderboard');
+            const top5 = [...valuedItems].sort((a, b) => b.nilaiBuku - a.nilaiBuku).slice(0, 5);
+
+            if (top5.length === 0) {
+                container.innerHTML = '<div class="empty-cell">Tidak ada data aset.</div>';
+                return;
+            }
+
+            const maxVal = top5[0].nilaiBuku || 1;
+            container.innerHTML = top5.map((item, idx) => {
+                const pctWidth = Math.max(6, Math.round((item.nilaiBuku / maxVal) * 100));
+                const shareOfTotal = totalNilaiBuku > 0 ? Math.round((item.nilaiBuku / totalNilaiBuku) * 100) : 0;
+                return `
+                    <div class="lb-item">
+                        <div class="lb-top">
+                            <div class="lb-name-wrap">
+                                <span class="lb-rank">#${idx + 1}</span>
+                                <span class="lb-name" title="${item.nama}">${item.nama}</span>
+                            </div>
+                            <span class="lb-val">${formatCompactRupiah(item.nilaiBuku)} <small>(${shareOfTotal}%)</small></span>
+                        </div>
+                        <div class="lb-track">
+                            <div class="lb-fill" style="width: ${pctWidth}%"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderWatchlistAndCondition(watchlistItems, counts) {
+            const statsBox = document.getElementById('conditionStatsBox');
+            statsBox.innerHTML = `
+                <div class="c-stat-row"><span class="dot dot-ok"></span><span>Berfungsi</span><strong>${counts[0]}</strong></div>
+                <div class="c-stat-row"><span class="dot dot-warn"></span><span>Perbaikan</span><strong>${counts[1]}</strong></div>
+                <div class="c-stat-row"><span class="dot dot-danger"></span><span>Rusak</span><strong>${counts[2]}</strong></div>
+            `;
+
+            const wlContainer = document.getElementById('managementWatchlist');
+            if (watchlistItems.length === 0) {
+                wlContainer.innerHTML = `<div class="wl-empty">Semua unit berfungsi normal dan masih memiliki nilai buku aktif.</div>`;
+                return;
+            }
+
+            wlContainer.innerHTML = watchlistItems.slice(0, 4).map(w => {
+                const cls = w.type === 'Rusak' ? 'wl-danger' : (w.type === 'Perbaikan' ? 'wl-warn' : 'wl-muted');
+                return `
+                    <div class="wl-item">
+                        <div>
+                            <div class="wl-title">${w.nama}</div>
+                            <div class="wl-code">${w.kode}</div>
+                        </div>
+                        <span class="wl-badge ${cls}">${w.label}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderModernCharts(dataset, categoryCostMap, categoryBookMap, locationBookMap, conditionCounts) {
+            if (categoryCompareChartInstance) categoryCompareChartInstance.destroy();
+            if (forecastChartInstance) forecastChartInstance.destroy();
+            if (locationChartInstance) locationChartInstance.destroy();
+            if (conditionChartInstance) conditionChartInstance.destroy();
+
+            // CHART 1: Grouped Bar (Harga Perolehan vs Nilai Buku per Kategori)
+            const ctxCompare = document.getElementById('categoryCompareChart');
+            const catLabels = Object.keys(categoryBookMap);
+            categoryCompareChartInstance = new Chart(ctxCompare, {
+                type: 'bar',
+                data: {
+                    labels: catLabels,
+                    datasets: [
+                        {
+                            label: 'Harga Perolehan',
+                            data: catLabels.map(k => categoryCostMap[k] || 0),
+                            backgroundColor: '#cbd5e1',
+                            borderRadius: 5,
+                            maxBarThickness: 26
+                        },
+                        {
+                            label: 'Nilai Buku Saat Ini',
+                            data: catLabels.map(k => categoryBookMap[k] || 0),
+                            backgroundColor: '#059669',
+                            borderRadius: 5,
+                            maxBarThickness: 26
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            align: 'end',
+                            labels: { boxWidth: 10, usePointStyle: true, font: { size: 11, weight: '600' } }
+                        },
+                        tooltip: { callbacks: { label: (ctx) => ` ${ctx.dataset.label}: ${formatRupiah(ctx.raw)}` } }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#f1f5f9' },
+                            ticks: { font: { size: 10 }, callback: (v) => formatCompactRupiah(v) }
+                        },
+                        x: { grid: { display: false }, ticks: { font: { size: 10, weight: '600' } } }
+                    }
+                }
+            });
+
+            // CHART 2: Line Area Chart Proyeksi Nilai Buku 3 Tahun ke Depan
+            const ctxForecast = document.getElementById('depreciationForecastChart');
+            const currentYear = new Date().getFullYear();
+            const projectionOffsets = [0, 6, 12, 24, 36]; // Bulan ke depan: Saat ini, +6 bln, +1 thn, +2 thn, +3 thn
+            const projectionLabels = ['Saat Ini', '+6 Bulan', `${currentYear + 1}`, `${currentYear + 2}`, `${currentYear + 3}`];
+            const projectionValues = projectionOffsets.map(addMonths => {
+                let sumBook = 0;
+                dataset.forEach(item => {
+                    const val = hitungValuasiItem(item);
+                    const futureMonths = val.diffMonths + addMonths;
+                    const futureAccum = Math.min(val.hb, val.sb * futureMonths);
+                    sumBook += Math.max(0, val.hb - futureAccum);
+                });
+                return sumBook;
+            });
+
+            forecastChartInstance = new Chart(ctxForecast, {
+                type: 'line',
+                data: {
+                    labels: projectionLabels,
+                    datasets: [{
+                        label: 'Proyeksi Nilai Buku',
+                        data: projectionValues,
+                        borderColor: '#0284c7',
+                        backgroundColor: 'rgba(2, 132, 199, 0.12)',
+                        borderWidth: 2.5,
+                        pointBackgroundColor: '#0284c7',
+                        pointRadius: 4,
+                        fill: true,
+                        tension: 0.35
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: (ctx) => ' Estimasi Nilai Buku: ' + formatRupiah(ctx.raw) } }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#f1f5f9' },
+                            ticks: { font: { size: 10 }, callback: (v) => formatCompactRupiah(v) }
+                        },
+                        x: { grid: { display: false }, ticks: { font: { size: 10, weight: '600' } } }
+                    }
+                }
+            });
+
+            // CHART 3: Horizontal Bar Lokasi
+            const ctxLoc = document.getElementById('locationValueChart');
+            locationChartInstance = new Chart(ctxLoc, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(locationBookMap),
+                    datasets: [{
+                        label: 'Nilai Buku',
+                        data: Object.values(locationBookMap),
+                        backgroundColor: '#0f172a',
+                        borderRadius: 5,
+                        maxBarThickness: 22
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: (ctx) => ' ' + formatRupiah(ctx.raw) } }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            grid: { color: '#f1f5f9' },
+                            ticks: { font: { size: 10 }, callback: (v) => formatCompactRupiah(v) }
+                        },
+                        y: { grid: { display: false }, ticks: { font: { size: 10, weight: '600' } } }
+                    }
+                }
+            });
+
+            // CHART 4: Mini Doughnut Kondisi
+            const ctxCond = document.getElementById('conditionStatusChart');
+            conditionChartInstance = new Chart(ctxCond, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Berfungsi', 'Perbaikan', 'Rusak'],
+                    datasets: [{
+                        data: conditionCounts,
+                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function renderGuestTable(baseDataset) {
+            const sourceList = baseDataset || getFilteredExecutiveAssets();
+            const sortOpt = document.getElementById('guestSortOption').value;
+            const keyword = document.getElementById('guestSearchInput').value.toLowerCase().trim();
+            let list = [...sourceList];
+
+            if (keyword) {
+                list = list.filter(item => {
+                    const n = (item.nama_barang || item.nama || '').toLowerCase();
+                    const k = (item.kode_barang || item.kode || '').toLowerCase();
+                    const l = (item.lokasi || '').toLowerCase();
+                    const c = (item.kategori || '').toLowerCase();
+                    return n.includes(keyword) || k.includes(keyword) || l.includes(keyword) || c.includes(keyword);
+                });
+            }
+
+            if (sortOpt === 'value_desc') list.sort((a, b) => hitungValuasiItem(b).nilaiBuku - hitungValuasiItem(a).nilaiBuku);
+            else if (sortOpt === 'name') list.sort((a, b) => (a.nama_barang || a.nama || '').localeCompare(b.nama_barang || b.nama || ''));
+            else if (sortOpt === 'category') list.sort((a, b) => (a.kategori || '').localeCompare(b.kategori || ''));
+            else list.sort((a, b) => (Number(b.no) || 0) - (Number(a.no) || 0));
+
+            const tbody = document.getElementById('guestTableBody');
+            tbody.innerHTML = '';
+
+            if (list.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-cell">Tidak ada data aset sesuai filter.</td></tr>';
+                return;
+            }
+
+            list.forEach((item, idx) => {
+                const val = hitungValuasiItem(item);
+                const kode = item.kode_barang || item.kode || '-';
+                const nama = item.nama_barang || item.nama || '-';
+                const kondisiText = item.keterangan || item.kondisi || 'Berfungsi';
+                const badgeClass = kondisiText.toLowerCase().includes('rusak') ? 'badge-danger' : (kondisiText.toLowerCase().includes('perbaikan') ? 'badge-warn' : 'badge-ok');
+
+                const tr = document.createElement('tr');
+                tr.dataset.idx = idx;
+                tr.onclick = () => selectGuestAsset(list, idx);
+                tr.innerHTML = `
+                    <td>
+                        <div class="td-title">${nama}</div>
+                        <div class="td-code">${kode}</div>
+                    </td>
+                    <td>
+                        <div class="td-cat">${item.kategori || '-'}</div>
+                        <span class="loc-tag">${item.lokasi || '-'}</span>
+                    </td>
+                    <td class="text-right td-muted-money">${formatRupiah(val.hb)}</td>
+                    <td class="text-right td-money">${formatRupiah(val.nilaiBuku)}</td>
+                    <td class="text-center"><span class="table-badge ${badgeClass}">${kondisiText}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            selectGuestAsset(list, 0);
+        }
+
+        function selectGuestAsset(list, idx) {
+            document.querySelectorAll('#guestTableBody tr').forEach(tr => {
+                tr.classList.toggle('active-row', Number(tr.dataset.idx) === idx);
+            });
+
+            const item = list[idx];
+            if (!item) return;
+            selectedAssetData = item;
+
+            document.getElementById('gKode').innerText = item.kode_barang || item.kode || '-';
+            document.getElementById('gNama').innerText = item.nama_barang || item.nama || '-';
+            document.getElementById('gKategori').innerText = item.kategori || '-';
+            document.getElementById('gLokasi').innerText = item.lokasi || '-';
+
+            const kondisiText = item.keterangan || item.kondisi || 'Berfungsi';
+            const pill = document.getElementById('gKondisi');
+            pill.innerText = kondisiText.toUpperCase();
+            pill.className = kondisiText.toLowerCase().includes('rusak') ? 'status-pill status-danger' : (kondisiText.toLowerCase().includes('perbaikan') ? 'status-pill status-warn' : 'status-pill status-ok');
+
+            const photoBox = document.getElementById('gPhotoBox');
+            const imgObj = resolveDriveImageUrl(item);
+            if (imgObj) {
+                photoBox.innerHTML = `<img src="${imgObj.thumb}" alt="Foto Aset" referrerpolicy="no-referrer" loading="lazy" onclick="window.open('${imgObj.view}', '_blank')" onerror="this.parentElement.innerHTML='<span>FOTO TIDAK TERSEDIA</span>'">`;
+            } else {
+                photoBox.innerHTML = '<span>DOKUMENTASI VISUAL TIDAK TERSEDIA</span>';
+            }
+
+            const val = hitungValuasiItem(item);
+            const blnNama = item.bulan_pembelian || item.bulan || "Januari";
+            const thnBeli = parseInt(item.tahun_pembelian || item.tahun || 2026);
+            document.getElementById('gWaktu').innerText = `${blnNama} ${thnBeli}`;
+
+            guestRealTimeMonths = val.diffMonths;
+            document.getElementById('gHargaAwal').innerText = formatRupiah(val.hb);
+            document.getElementById('gSusutBulan').innerText = `- ${formatRupiah(val.sb)}`;
+            document.getElementById('gInputBulanKe').value = guestRealTimeMonths;
+            updateGuestSimulator(guestRealTimeMonths);
+        }
+
+        function updateGuestSimulator(bulanKe) {
+            if (!selectedAssetData) return;
+            const bulan = Math.max(0, parseInt(bulanKe) || 0);
+            const hb = Number(selectedAssetData.harga_beli || selectedAssetData.harga || 0);
+            const sb = Number(selectedAssetData.susut_per_bulan || selectedAssetData.susut || 0);
+            const akumulasi = Math.min(hb, sb * bulan);
+            const nilaiBuku = Math.max(0, hb - akumulasi);
+
+            document.getElementById('gAkumulasiSusut').innerText = formatRupiah(akumulasi);
+            document.getElementById('gNilaiBuku').innerText = formatRupiah(nilaiBuku);
+
+            const persenSisa = hb > 0 ? Math.round((nilaiBuku / hb) * 100) : 0;
+            document.getElementById('gPersenSisa').innerText = `${persenSisa}%`;
+            document.getElementById('gDepProgressBar').style.width = `${persenSisa}%`;
+        }
+
+        function resetGuestSimulator() {
+            document.getElementById('gInputBulanKe').value = guestRealTimeMonths;
+            updateGuestSimulator(guestRealTimeMonths);
+        }
+
+        // =========================================================================
+        // LOGIKA SECTION B: ADMIN OPERATIONS CONSOLE (INPUT, EDIT, DELETE, QR ZIP)
+        // =========================================================================
+        function renderAdminTable() {
+            const sortOpt = document.getElementById('adminSortOption').value;
+            const keyword = document.getElementById('adminSearchInput').value.toLowerCase().trim();
+            let list = [...rawAssets];
+
+            document.getElementById('adminTotalCount').innerText = rawAssets.length;
+
+            if (keyword) {
+                list = list.filter(item => {
+                    const n = (item.nama_barang || item.nama || '').toLowerCase();
+                    const k = (item.kode_barang || item.kode || '').toLowerCase();
+                    const l = (item.lokasi || '').toLowerCase();
+                    return n.includes(keyword) || k.includes(keyword) || l.includes(keyword);
+                });
+            }
+
+            if (sortOpt === 'name') list.sort((a, b) => (a.nama_barang || a.nama || '').localeCompare(b.nama_barang || b.nama || ''));
+            else if (sortOpt === 'category') list.sort((a, b) => (a.kategori || '').localeCompare(b.kategori || ''));
+            else list.sort((a, b) => (Number(b.no) || 0) - (Number(a.no) || 0));
+
+            const tbody = document.getElementById('adminTableBody');
+            tbody.innerHTML = '';
+
+            if (list.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="empty-cell">Belum ada data aset.</td></tr>';
+                return;
+            }
+
+            list.forEach((item, idx) => {
+                const kode = item.kode_barang || item.kode || '-';
+                const nama = item.nama_barang || item.nama || '-';
+                const kondisiText = item.keterangan || item.kondisi || 'Berfungsi';
+                const badgeClass = kondisiText.toLowerCase().includes('rusak') ? 'badge-danger' : (kondisiText.toLowerCase().includes('perbaikan') ? 'badge-warn' : 'badge-ok');
+
+                const tr = document.createElement('tr');
+                tr.dataset.idx = idx;
+                tr.onclick = () => selectAdminAsset(list, idx);
+                tr.innerHTML = `
+                    <td>
+                        <div class="td-title">${nama}</div>
+                        <div class="td-code">${kode}</div>
+                    </td>
+                    <td><span class="loc-tag">${item.lokasi || '-'}</span></td>
+                    <td><span class="table-badge ${badgeClass}">${kondisiText}</span></td>
+                    <td class="text-right">
+                        <button type="button" class="btn-inline-edit" onclick="event.stopPropagation(); selectAdminAssetByIndexAndEdit(${idx})">Edit</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            window._currentAdminFilteredList = list;
+
+            let targetIdx = 0;
+            if (autoSelectKode !== "") {
+                const found = list.findIndex(item => (item.kode_barang || item.kode) === autoSelectKode);
+                if (found !== -1) targetIdx = found;
+                autoSelectKode = "";
+            }
+            selectAdminAsset(list, targetIdx);
+        }
+
+        function selectAdminAssetByIndexAndEdit(idx) {
+            if (!window._currentAdminFilteredList) return;
+            selectAdminAsset(window._currentAdminFilteredList, idx);
+            siapkanEdit();
+        }
+
+        function selectAdminAsset(list, idx) {
+            document.querySelectorAll('#adminTableBody tr').forEach(tr => {
+                tr.classList.toggle('active-row', Number(tr.dataset.idx) === idx);
+            });
+
+            const item = list[idx];
+            if (!item) return;
+            selectedAssetData = item;
+
+            const kode = item.kode_barang || item.kode || '-';
+            const val = hitungValuasiItem(item);
+
+            document.getElementById('aKode').innerText = kode;
+            document.getElementById('aNama').innerText = item.nama_barang || item.nama || '-';
+            document.getElementById('aMeta').innerText = `Zona: ${item.lokasi || '-'} • Nilai Buku: ${formatRupiah(val.nilaiBuku)}`;
+
+            const photoBox = document.getElementById('aPhotoBox');
+            const imgObj = resolveDriveImageUrl(item);
+            if (imgObj) {
+                photoBox.innerHTML = `<img src="${imgObj.thumb}" alt="Thumb" referrerpolicy="no-referrer" onclick="window.open('${imgObj.view}', '_blank')">`;
+            } else {
+                photoBox.innerHTML = '<span>NO IMG</span>';
+            }
+
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = '';
+            let currentUrl = window.location.href.replace('index.html', '').split('?')[0];
+            if (!currentUrl.endsWith('/')) currentUrl += '/';
+            qrCodeInstance = new QRCode(qrContainer, {
+                text: `${currentUrl}view.html?kode=${encodeURIComponent(kode)}`,
+                width: 82,
+                height: 82,
+                colorDark: "#0f172a",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            document.getElementById('btnEditAsset').classList.remove('hidden');
+            document.getElementById('btnDeleteAsset').classList.remove('hidden');
+            document.getElementById('btnDownloadSingleQr').classList.remove('hidden');
+        }
+
+        function downloadQRCode() {
+            if (!selectedAssetData) return;
+            const img = document.querySelector('#qrcode img');
+            if (img && img.src) {
+                const a = document.createElement('a');
+                a.href = img.src;
+                a.download = `QR_${selectedAssetData.kode_barang || selectedAssetData.kode || 'ASET'}.png`;
+                a.click();
+            }
+        }
+
+        function kompresDanUbahKeBase64(file, maxWidth = 800, quality = 0.6) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader(); reader.readAsDataURL(file);
+                reader.onload = (e) => {
+                    const img = new Image(); img.src = e.target.result;
+                    img.onload = () => {
+                        let w = img.width, h = img.height;
+                        if (w > maxWidth) { h = Math.round((h * maxWidth) / w); w = maxWidth; }
+                        const canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h;
+                        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                        resolve(canvas.toDataURL('image/jpeg', quality).split(',')[1]);
+                    }; img.onerror = reject;
+                }; reader.onerror = reject;
+            });
+        }
+
+        function siapkanEdit() {
+            if (!selectedAssetData) return;
+            
+            isEditMode = true;
+            editKodeLama = selectedAssetData.kode_barang || selectedAssetData.kode;
+            
+            editFotoLama = selectedAssetData.gambar || selectedAssetData.foto || selectedAssetData.url_foto || '';
+            if (!editFotoLama) {
+                for (let key in selectedAssetData) {
+                    if (typeof selectedAssetData[key] === 'string' && selectedAssetData[key].includes('drive.google.com')) { editFotoLama = selectedAssetData[key]; break; }
+                }
+            }
+
+            const kodeInput = document.getElementById('kode');
+            document.getElementById('nama').value = selectedAssetData.nama_barang || selectedAssetData.nama || '';
+            kodeInput.value = editKodeLama;
+            kodeInput.readOnly = true;
+            kodeInput.classList.add('input-locked');
+
+            document.getElementById('kategori').value = selectedAssetData.kategori_barang || selectedAssetData.kategori || 'Mesin Produksi';
+            document.getElementById('lokasi').value = selectedAssetData.lokasi_aset || selectedAssetData.lokasi || '';
+            document.getElementById('hargaBeli').value = selectedAssetData.harga_beli || selectedAssetData.harga || '';
+            document.getElementById('susutBulan').value = selectedAssetData.susut_per_bulan || selectedAssetData.susut || '';
+            document.getElementById('bulanBeli').value = selectedAssetData.bulan_pembelian || selectedAssetData.bulan || 'Januari';
+            document.getElementById('tahun').value = selectedAssetData.tahun_pembelian || selectedAssetData.tahun || '2026';
+            
+            const kondisiAsli = selectedAssetData.keterangan || selectedAssetData.kondisi || 'Berfungsi';
+            const selectKondisi = document.getElementById('kondisi');
+            for(let i=0; i<selectKondisi.options.length; i++) {
+                if(selectKondisi.options[i].value.toLowerCase() === kondisiAsli.toLowerCase()) { selectKondisi.selectedIndex = i; break; }
+            }
+            
+            document.getElementById('formHeadingTitle').innerText = "Edit Data Aset";
+            document.getElementById('editModeBanner').classList.remove('hidden');
+            document.getElementById('btnCancelEdit').classList.remove('hidden');
+            document.getElementById('btnSave').innerText = "UPDATE DATA ASET";
+            
+            showToast("MODE EDIT AKTIF — Kode Serial dikunci.", "info");
+        }
+
+        function batalkanEdit() {
+            isEditMode = false; editKodeLama = ""; editFotoLama = "";
+            document.getElementById('formHeadingTitle').innerText = "Input Aset Baru";
+            document.getElementById('editModeBanner').classList.add('hidden');
+            document.getElementById('btnCancelEdit').classList.add('hidden');
+            
+            const kodeInput = document.getElementById('kode');
+            document.getElementById('nama').value = ''; 
+            kodeInput.value = '';
+            kodeInput.readOnly = false;
+            kodeInput.classList.remove('input-locked');
+
+            document.getElementById('hargaBeli').value = ''; 
+            document.getElementById('susutBulan').value = '';
+            document.getElementById('fotoInput').value = '';
+            document.getElementById('btnSave').innerText = "SIMPAN ASET";
+        }
+
+        function hapusAssetLokalDanCloud() {
+            if (!selectedAssetData) return;
+            document.getElementById('confirmText').innerHTML = `Tindakan ini permanen.<br><br>Hapus aset: <b>${selectedAssetData.kode_barang || selectedAssetData.kode}</b>?`;
+            document.getElementById('customConfirm').classList.add('active');
+        }
+
+        function closeConfirmModal() { 
+            document.getElementById('customConfirm').classList.remove('active');
+        }
+
+        async function executeHapus() {
+            if (!selectedAssetData) return;
+            const kode = selectedAssetData.kode_barang || selectedAssetData.kode;
+            closeConfirmModal(); 
+            const btn = document.getElementById('btnDeleteAsset'); btn.innerText = "Menghapus..."; btn.disabled = true;
+            try {
+                await fetch(CLOUD_API, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: "delete", kode: kode }) });
+                localStorage.removeItem('ais_asd_backup'); 
+                showToast("ASET BERHASIL DIHAPUS", "success");
+                btn.innerText = "Hapus Aset"; btn.disabled = false;
+                setTimeout(loadCloudData, 1000);
+            } catch (err) { 
+                showToast("GAGAL MENGHAPUS", "error"); btn.innerText = "Hapus Aset"; btn.disabled = false; 
+            }
+        }
+
+        async function saveData() {
+            const nama = document.getElementById('nama').value.trim();
+            let kode = document.getElementById('kode').value.trim();
+            if (!nama) { showToast("NAMA ASET WAJIB DIISI", "error"); return; }
+            if (!kode) { kode = `ASD/MSN/${document.getElementById('tahun').value}/PROD/018`; }
+
+            const btn = document.getElementById('btnSave'); 
+            btn.disabled = true;
+            
+            let imageBase64 = "";
+            const fotoFile = document.getElementById('fotoInput').files[0];
+
+            if (fotoFile) {
+                btn.innerText = "MENGOMPRES FOTO...";
+                try { imageBase64 = await kompresDanUbahKeBase64(fotoFile); } catch (e) { }
+            }
+
+            btn.innerText = isEditMode ? "MENGIRIM UPDATE..." : "MENYIMPAN...";
+            
+            const payload = {
+                action: isEditMode ? "update" : "insert",
+                kode_lama: isEditMode ? editKodeLama : "",
+                foto_lama: isEditMode ? editFotoLama : "",
+                kategori: document.getElementById('kategori').value, kode: kode, nama: nama, 
+                lokasi: document.getElementById('lokasi').value.trim(), kondisi: document.getElementById('kondisi').value,
+                bulan_pembelian: document.getElementById('bulanBeli').value, tahun_pembelian: document.getElementById('tahun').value, 
+                harga_beli: document.getElementById('hargaBeli').value || 0, susut_per_bulan: document.getElementById('susutBulan').value || 0, 
+                image_base64: imageBase64, image_type: "image/jpeg"
+            };
+
+            try {
+                await fetch(CLOUD_API, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+                
+                showToast(isEditMode ? "DATA BERHASIL DIUPDATE!" : "ASET BERHASIL DISIMPAN", "success");
+                autoSelectKode = kode;
+                
+                if(isEditMode) {
+                    batalkanEdit(); 
+                } else {
+                    const kodeInput = document.getElementById('kode');
+                    document.getElementById('nama').value = ''; 
+                    kodeInput.value = '';
+                    kodeInput.readOnly = false;
+                    kodeInput.classList.remove('input-locked');
+                    document.getElementById('hargaBeli').value = ''; 
+                    document.getElementById('susutBulan').value = '';
+                    document.getElementById('fotoInput').value = '';
+                }
+                
+                localStorage.removeItem('ais_asd_backup');
+                setTimeout(loadCloudData, 1000);
+                
+            } catch (err) {
+                showToast("GAGAL MENGIRIM DATA", "error");
+            } finally {
+                btn.disabled = false; 
+                btn.innerText = isEditMode ? "UPDATE DATA ASET" : "SIMPAN ASET";
+            }
+        }
+
+        async function downloadAllQRsAsZip() {
+            let listToDownload = rawAssets && rawAssets.length > 0 ? rawAssets : [];
+            if (listToDownload.length === 0) {
+                const local = localStorage.getItem('ais_asd_backup');
+                if (local) listToDownload = JSON.parse(local);
+            }
+            if (listToDownload.length === 0) {
+                showToast("TIDAK ADA DATA ASET", "error");
+                return;
+            }
+
+            const btn = document.getElementById('btnDownloadZip');
+            const originalText = btn.innerHTML;
+            
+            try {
+                btn.innerHTML = "Memproses " + listToDownload.length + " QR...";
+                btn.disabled = true;
+
+                const zip = new JSZip();
+                const folderZip = zip.folder("Stiker_QR_ASD");
+                let count = 0;
+
+                const tempDiv = document.createElement('div');
+                tempDiv.className = 'offscreen-qr-render';
+                document.body.appendChild(tempDiv);
+
+                let currentUrl = window.location.href.replace('index.html', '').split('?')[0];
+                if (!currentUrl.endsWith('/')) currentUrl += '/';
+
+                for (let item of listToDownload) {
+                    const kodeAset = item.kode_barang || item.kode;
+                    if (!kodeAset) continue;
+
+                    const viewPageUrl = `${currentUrl}view.html?kode=${encodeURIComponent(kodeAset)}`;
+                    tempDiv.innerHTML = '';
+                    
+                    new QRCode(tempDiv, {
+                        text: viewPageUrl,
+                        width: 400,
+                        height: 400,
+                        colorDark : "#0f172a",
+                        colorLight : "#ffffff",
+                        correctLevel : QRCode.CorrectLevel.H
+                    });
+
+                    await new Promise(res => setTimeout(res, 35));
+                    
+                    const canvas = tempDiv.querySelector('canvas');
+                    if (canvas) {
+                        const base64Data = canvas.toDataURL('image/png').split(',')[1];
+                        const safeFileName = kodeAset.replace(/\//g, '_') + ".png";
+                        folderZip.file(safeFileName, base64Data, {base64: true});
+                        count++;
+                    } else {
+                        const img = tempDiv.querySelector('img');
+                        if (img && img.src) {
+                            const base64Data = img.src.split(',')[1];
+                            const safeFileName = kodeAset.replace(/\//g, '_') + ".png";
+                            folderZip.file(safeFileName, base64Data, {base64: true});
+                            count++;
+                        }
+                    }
+                }
+
+                document.body.removeChild(tempDiv);
+
+                if (count === 0) {
+                    showToast("GAGAL MEMBUAT GAMBAR QR", "error");
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    return;
+                }
+
+                btn.innerHTML = "Mengepak ZIP...";
+                
+                const content = await zip.generateAsync({ type: "blob" });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(content);
+                link.download = "Stiker_QR_ASD.zip";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                showToast("BERHASIL MENDOWNLOAD ZIP", "success");
+                btn.innerHTML = "Berhasil Di-download";
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }, 3000);
+
+            } catch (err) {
+                console.error(err);
+                showToast("TERJADI KESALAHAN SAAT DOWNLOAD", "error");
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
     </script>
 </body>
 </html>
