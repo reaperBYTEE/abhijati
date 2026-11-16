@@ -37,11 +37,12 @@ body {
 .text-emerald { color: var(--emerald); }
 .text-amber { color: var(--amber); }
 .text-danger { color: var(--danger); }
+.text-mint { color: #34d399 !important; }
 .text-right { text-align: right; }
 .text-center { text-align: center; }
 
 /* ==========================================
-   1. SPLIT-SCREEN LOGIN
+   1. SPLIT-SCREEN LOGIN (UPDATED HERO, TELEMETRY, AVATAR & EXIT)
    ========================================== */
 .login-split-screen {
     min-height: 100vh;
@@ -52,16 +53,33 @@ body {
 .login-brand-panel {
     background: linear-gradient(155deg, #0f172a 0%, #1e293b 100%);
     color: #f8fafc;
-    padding: 48px 56px;
+    padding: 40px 52px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    gap: 24px;
+    overflow: hidden;
 }
 
-.brand-mark-row {
+/* 1. Area Logo Kiri Proporsional */
+.brand-mark-hero {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 20px;
+}
+
+.logo-box-hero {
+    width: 82px;
+    height: 82px;
+    border-radius: 18px;
+    background: #ffffff;
+    border: 2px solid rgba(255, 255, 255, 0.16);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
 }
 
 .logo-box {
@@ -79,7 +97,16 @@ body {
 
 .logo-box.sm { width: 38px; height: 38px; border-radius: 9px; }
 
-.logo-img { width: 100%; height: 100%; object-fit: contain; padding: 5px; }
+.logo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 6px;
+}
+
+.logo-box-hero .logo-img {
+    padding: 8px;
+}
 
 .logo-fallback {
     display: none;
@@ -88,34 +115,154 @@ body {
     align-items: center;
     justify-content: center;
     font-weight: 800;
-    font-size: 1.25rem;
+    font-size: 1.4rem;
     color: var(--emerald);
 }
 
-.org-tag {
-    display: block;
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 2px;
-    color: #94a3b8;
-    margin-bottom: 4px;
+.brand-hero-text {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
 }
 
-.system-name { font-size: 1.75rem; font-weight: 800; letter-spacing: 1px; line-height: 1; }
-.system-name span { color: #10b981; }
-.system-name small {
+.org-tag-hero {
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 2.2px;
+    color: #94a3b8;
+}
+
+.system-name-hero {
+    font-size: 2.35rem;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    line-height: 1;
+    color: #ffffff;
+}
+
+.system-name-hero span {
+    color: #10b981;
+}
+
+.system-name-hero small {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.68rem;
-    background: rgba(16, 185, 129, 0.18);
+    font-size: 0.74rem;
+    background: rgba(16, 185, 129, 0.2);
+    border: 1px solid rgba(16, 185, 129, 0.4);
     color: #34d399;
-    padding: 3px 8px;
-    border-radius: 6px;
+    padding: 4px 10px;
+    border-radius: 7px;
     vertical-align: middle;
 }
 
-.hero-copy { max-width: 460px; }
-.hero-copy h2 { font-size: 2.15rem; font-weight: 800; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 14px; }
-.hero-copy p { font-size: 0.92rem; color: #94a3b8; line-height: 1.6; }
+.system-sub-hero {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 1.5px;
+    color: #64748b;
+}
+
+.hero-copy { max-width: 480px; }
+.hero-copy h2 { font-size: 2.05rem; font-weight: 800; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 12px; }
+.hero-copy p { font-size: 0.9rem; color: #94a3b8; line-height: 1.6; }
+
+/* 2. Live Telemetry & Animated Running Ticker */
+.telemetry-showcase-box {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    padding: 16px 18px;
+    backdrop-filter: blur(8px);
+    max-width: 540px;
+}
+
+.telemetry-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.tel-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #34d399;
+}
+
+.equalizer-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 14px;
+}
+
+.equalizer-bars span {
+    width: 3px;
+    background: #10b981;
+    border-radius: 2px;
+    animation: eqPulse 1.1s ease-in-out infinite;
+}
+
+.equalizer-bars span:nth-child(2) { animation-delay: 0.2s; }
+.equalizer-bars span:nth-child(3) { animation-delay: 0.4s; }
+.equalizer-bars span:nth-child(4) { animation-delay: 0.15s; }
+.equalizer-bars span:nth-child(5) { animation-delay: 0.35s; }
+
+@keyframes eqPulse {
+    0%, 100% { height: 4px; opacity: 0.45; }
+    50% { height: 14px; opacity: 1; }
+}
+
+.telemetry-metrics-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    margin-bottom: 10px;
+}
+
+.tel-metric small {
+    display: block;
+    font-size: 0.58rem;
+    letter-spacing: 0.8px;
+    color: #64748b;
+    margin-bottom: 3px;
+}
+
+.tel-metric strong {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    color: #f8fafc;
+}
+
+.ticker-viewport {
+    overflow: hidden;
+    white-space: nowrap;
+    position: relative;
+}
+
+.ticker-track {
+    display: inline-flex;
+    gap: 32px;
+    animation: tickerScroll 22s linear infinite;
+    font-size: 0.72rem;
+    color: #94a3b8;
+}
+
+.ticker-viewport:hover .ticker-track {
+    animation-play-state: paused;
+}
+
+@keyframes tickerScroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
 
 .login-feature-pills { display: flex; flex-wrap: wrap; gap: 10px; }
 .f-pill {
@@ -135,9 +282,10 @@ body {
     font-size: 0.68rem;
     color: #64748b;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
-    padding-top: 18px;
+    padding-top: 16px;
 }
 
+/* Panel Kanan Login */
 .login-form-panel {
     background: #ffffff;
     display: flex;
@@ -147,9 +295,48 @@ body {
 }
 
 .login-form-box { width: 100%; max-width: 360px; }
-.form-head { margin-bottom: 26px; }
-.form-head h3 { font-size: 1.45rem; font-weight: 800; color: var(--ink); margin-bottom: 6px; }
+
+/* 3. Avatar di Atas Tulisan LOGIN */
+.login-avatar-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+
+.login-avatar-circle {
+    width: 74px;
+    height: 74px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #ecfdf5 0%, #d1fae5 100%);
+    border: 2px solid #a7f3d0;
+    color: var(--emerald);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 20px rgba(5, 150, 105, 0.14);
+}
+
+.form-head { margin-bottom: 24px; }
+.form-head.centered { text-align: center; }
+.form-head h3 { font-size: 1.45rem; font-weight: 800; color: var(--ink); margin-bottom: 6px; letter-spacing: 0.5px; }
 .form-head p { font-size: 0.84rem; color: var(--ink-muted); }
+
+/* 4. Tombol EXIT di Bawah Tombol LOGIN */
+.btn-exit-app {
+    width: 100%;
+    margin-top: 10px;
+    padding: 12px;
+    background: transparent;
+    border: 1px solid #fecaca !important;
+    color: var(--danger);
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.btn-exit-app:hover {
+    background: var(--danger-soft);
+    border-color: var(--danger) !important;
+}
 
 /* ==========================================
    2. TOPBAR & WORKSPACE SHELL
@@ -246,6 +433,7 @@ body {
     border-radius: 50%;
     background: #10b981;
     box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.25);
+    flex-shrink: 0;
 }
 
 .exec-hero-left h2 {
