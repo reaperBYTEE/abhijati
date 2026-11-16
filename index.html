@@ -73,16 +73,18 @@
                 <!-- Mini Animated Metric Preview -->
                 <div class="telemetry-metrics-row" id="loginTelemetryStats">
                     <div class="tel-metric">
-                        <small>ZONA AKTIF</small>
-                        <strong>WS &amp; PRODUKSI</strong>
+                        <small>TOTAL ASSETS</small>
+                        <strong>78 UNIT</strong>
                     </div>
                     <div class="tel-metric">
-                        <small>METODE VALUASI</small>
-                        <strong>STRAIGHT-LINE</strong>
+                        <small>VERSION</small>
+                        <strong>BETA 1.1.0x (build 16.11.556)</strong>
                     </div>
-                    <div class="tel-metric">
-                        <small>CLOUD SYNC</small>
-                        <strong class="text-mint">NEED UPDATE & DATA CHECKING</strong>
+                    <div class="tel-metric tel-metric-warning">
+                        <small>STATUS DATABASE</small>
+                        <strong class="warning-badge-anim">
+                            <span class="warn-icon">⚠</span> PERLU UPDATE &amp; CHECK DATA
+                        </strong>
                     </div>
                 </div>
 
@@ -803,31 +805,29 @@
             return { hb, sb, diffMonths, akumulasi, nilaiBuku };
         }
 
-        // otomatis data ringkas di kotak telemetry Login dari cache lokal
+        // Isi otomatis data ringkas di kotak telemetry Login dari cache lokal
         (function initLoginTelemetry() {
             try {
                 const cached = localStorage.getItem('ais_asd_backup');
                 if (cached) {
                     const list = JSON.parse(cached);
                     if (Array.isArray(list) && list.length > 0) {
-                        let totalBuku = 0;
-                        list.forEach(item => {
-                            totalBuku += hitungValuasiItem(item).nilaiBuku;
-                        });
                         const statsRow = document.getElementById('loginTelemetryStats');
                         if (statsRow) {
                             statsRow.innerHTML = `
                                 <div class="tel-metric">
-                                    <small>TOTAL ASET</small>
+                                    <small>TOTAL ASSETS</small>
                                     <strong>${list.length} UNIT</strong>
                                 </div>
                                 <div class="tel-metric">
                                     <small>VERSION</small>
-                                    <strong class="text-mint">BETA 1.1.0x (build 16.11.556)</strong>
+                                    <strong>BETA 1.1.0x (build 16.11.556)</strong>
                                 </div>
-                                <div class="tel-metric">
+                                <div class="tel-metric tel-metric-warning">
                                     <small>STATUS DATABASE</small>
-                                    <strong>PERLU UPDATE & CHECK DATA</strong>
+                                    <strong class="warning-badge-anim">
+                                        <span class="warn-icon">⚠</span> PERLU UPDATE &amp; CHECK DATA
+                                    </strong>
                                 </div>
                             `;
                         }
