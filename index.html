@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AIAS Beta — Executive Asset Intelligence (ASD)</title>
+    <title>AIAS Beta — Asset Report (ASD)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -62,15 +62,15 @@
 
             <div class="login-panel-footer">
                 <span>DPSA GROUP — YOGYAKARTA</span>
-                <span>BUILD 1.0-BETA</span>
+                <span>BUILD 1.1.0x-BETA</span>
             </div>
         </div>
 
         <div class="login-form-panel">
             <div class="login-form-box">
                 <div class="form-head">
-                    <h3>Masuk ke Sistem</h3>
-                    <p>Otentikasi otomatis menyesuaikan tampilan Direksi atau Admin.</p>
+                    <h3>LOGIN</h3>
+                    <p>Otentikasi otomatis Guest atau Admin.</p>
                 </div>
 
                 <div class="input-group">
@@ -92,7 +92,7 @@
                 </div>
 
                 <button id="btnLoginSubmit" onclick="doLogin()" class="btn btn-primary btn-lg">
-                    <span id="btnLoginText">MASUK WORKSPACE</span>
+                    <span id="btnLoginText">LOGIN</span>
                 </button>
             </div>
         </div>
@@ -677,13 +677,13 @@
             if (role === 'admin') {
                 badge.innerText = 'Admin Operations';
                 badge.className = 'role-pill role-admin';
-                subtitle.innerText = 'Abhijati Sahar Dharma — Operational  Console';
+                subtitle.innerText = 'Abhijati Sahar Dharma — Smart Assets System';
                 document.getElementById('guestView').classList.add('hidden');
                 document.getElementById('adminView').classList.remove('hidden');
             } else {
                 badge.innerText = 'Executive / Finance View';
                 badge.className = 'role-pill role-exec';
-                subtitle.innerText = 'Abhijati Sahar Dharma — Executive Asset Intelligence';
+                subtitle.innerText = 'Abhijati Sahar Dharma — Executive Asset Report';
                 document.getElementById('adminView').classList.add('hidden');
                 document.getElementById('guestView').classList.remove('hidden');
                 
